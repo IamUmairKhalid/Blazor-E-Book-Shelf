@@ -1,0 +1,81 @@
+﻿<!-- Stats Section -->
+<div class="container my-5">
+    <div class="row gy-4 text-center">
+
+        <div class="col-lg-3 col-md-6">
+            <div style="background-color:#FF6F3C; border-radius:50%; width:64px; height:64px; display:flex; align-items:center; justify-content:center; margin:0 auto; margin-bottom:0.5rem;">
+                <i class="bi bi-person-check text-white fs-3"></i>
+            </div>
+            <h3>@animatedUsers</h3>
+            <p class="text-secondary">Registered Users</p>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div style="background-color:#FF6F3C; border-radius:50%; width:64px; height:64px; display:flex; align-items:center; justify-content:center; margin:0 auto; margin-bottom:0.5rem;">
+                <i class="bi bi-book text-white fs-3"></i>
+            </div>
+            <h3>@animatedBooks</h3>
+            <p class="text-secondary">Books Available</p>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div style="background-color:#FF6F3C; border-radius:50%; width:64px; height:64px; display:flex; align-items:center; justify-content:center; margin:0 auto; margin-bottom:0.5rem;">
+                <i class="bi bi-journal-check text-white fs-3"></i>
+            </div>
+            <h3>@animatedReads</h3>
+            <p class="text-secondary">Books Read</p>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+            <div style="background-color:#FF6F3C; border-radius:50%; width:64px; height:64px; display:flex; align-items:center; justify-content:center; margin:0 auto; margin-bottom:0.5rem;">
+                <i class="bi bi-eye text-white fs-3"></i>
+            </div>
+            <h3>@animatedActiveReaders</h3>
+            <p class="text-secondary">Active Readers</p>
+        </div>
+
+    </div>
+</div>
+<!-- /Stats Section -->
+@code {
+    private readonly int totalUsers = 150;
+    private readonly int totalBooks = 320;
+    private readonly int totalReads = 120;
+    private readonly int activeReaders = 35;
+
+    private int animatedUsers;
+    private int animatedBooks;
+    private int animatedReads;
+    private int animatedActiveReaders;
+
+    private System.Timers.Timer? timer;
+
+    protected override void OnInitialized()
+    {
+        timer = new System.Timers.Timer(20);
+        timer.Elapsed += (s, e) => InvokeAsync(UpdateCounters);
+        timer.Start();
+    }
+
+    private void UpdateCounters()
+    {
+        bool stillRunning = false;
+
+        if (animatedUsers < totalUsers) { animatedUsers++; stillRunning = true; }
+        if (animatedBooks < totalBooks) { animatedBooks += 2; stillRunning = true; }
+        if (animatedReads < totalReads) { animatedReads += 10; stillRunning = true; }
+        if (animatedActiveReaders < activeReaders) { animatedActiveReaders++; stillRunning = true; }
+
+        if (!stillRunning)
+        {
+            timer?.Stop();
+        }
+
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

@@ -1,0 +1,60 @@
+﻿ <!-- Topbar Start -->
+<div id="top"></div>
+<nav class="navbar navbar-expand-lg sticky-top shadow-sm p-0" style="background-color:#FAF9F6;">
+    <!-- Brand -->
+    <a href="/" class="navbar-brand d-flex align-items-center px-4 py-2" style="font-family: 'Merriweather', serif;">
+        <h1 class="m-0 fw-bold" style="color:#1B263B;">E-Book Shelf</h1>
+    </a>
+
+    <!-- Toggler -->
+    <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" style="border-color:#1B263B;">
+        <span class="navbar-toggler-icon" style="filter: invert(30%) sepia(20%) saturate(400%) hue-rotate(190deg) brightness(80%) contrast(85%);"></span>
+    </button>
+
+    <!-- Nav Links -->
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav ms-auto px-4 py-2 py-lg-0" style="font-family: 'Open Sans', sans-serif; font-weight: 600; color: #555555;">
+            <li class="nav-item">
+                <a class="nav-link active" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="Counter">About</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="jobsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Jobs
+                </a>
+                <ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="jobsDropdown">
+                    <li><a class="dropdown-item" href="job-list.html">Job List</a></li>
+                    <li><a class="dropdown-item" href="job-detail.html">Job Detail</a></li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Pages
+                </a>
+                <ul class="dropdown-menu border-0 shadow-sm" aria-labelledby="pagesDropdown">
+                    <li><a class="dropdown-item" href="category.html">Job Category</a></li>
+                    <li><a class="dropdown-item" href="testimonial.html">Testimonial</a></li>
+                    <li><a class="dropdown-item" href="404.html">404</a></li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="contact.html">Contact</a>
+            </li>
+        </ul>
+
+        <!-- CTA Button -->
+        <div class="d-none d-lg-block pe-4">
+            <a href="#" class="btn py-3 px-4 text-light" style="background-color:#FF6F3C; font-weight:700; font-family: 'Open Sans', sans-serif;">
+                Sign In <i class="fa fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Topbar End -->
+
+@code {
+
+}
