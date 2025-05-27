@@ -1,0 +1,63 @@
+﻿@page "/bookdetail"
+@rendermode InteractiveServer
+
+<PageTitle>Book Details</PageTitle>
+
+<div class="container py-5">
+    <div class="row g-4 align-items-start">
+        <!-- Book Cover -->
+        <div class="col-lg-4 text-center card-hover">
+            <img src="@CoverUrl" alt="Book Cover"
+                 class="img-fluid rounded shadow-sm"
+                 style="max-height: 450px; object-fit: cover;" />
+        </div>
+
+        <!-- Book Info -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4">
+                <h2 class="mb-2 fw-bold ">@Title</h2>
+                <h5 class="text-muted mb-3"><i class="bi bi-person-circle me-2"></i>@Author</h5>
+
+                <div class="mb-3">
+                    <span class="badge bg-info-subtle text-primary me-2"><i class="bi bi-bookmark"></i> @Genre</span>
+                    <span class="badge bg-secondary-subtle text-secondary me-2"><i class="bi bi-calendar"></i> @PublishedYear</span>
+                    <span class="badge bg-success-subtle text-success"><i class="bi bi-translate"></i> @Language</span>
+                </div>
+
+                <p class="text-secondary" style="line-height: 1.6">
+                    @Description
+                </p>
+
+                <div class="mt-4 d-flex gap-3 flex-wrap">
+                    <button class="btn hover-in text-light btn-md px-4" style="background-color: #FF6F3C" @onclick="ReadNow">
+                        <i class="bi bi-book me-2"></i>Read Now
+                    </button>
+                    <button class="btn hover-in btn-outline-secondary btn-md px-2" @onclick="AddToLibrary">
+                        <i class="bi bi-bookmark-plus me-2"></i>Add to Library
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string Title = "The Great Gatsby";
+    private string Author = "F. Scott Fitzgerald";
+    private string Description = "Set in the Roaring Twenties, this novel explores themes of wealth, love, illusion, and the and American Dream through the mysterious Jay Gatsby.Set in the Roaring Twenties, this novel explores themes of wealth, love, illusion, and the and American Dream through the mysterious Jay Gatsby.Set in the Roaring Twenties, this novel explores themes of wealth, love, illusion, and the and American Dream through the mysterious Jay Gatsby.Set in the Roaring Twenties, this novel explores themes of wealth, love, illusion, and the and American Dream through the mysterious Jay Gatsby.Set in the Roaring Twenties, this novel explores themes of wealth, love, illusion, and the and American Dream through the mysterious Jay Gatsby.Set in the Roaring Twenties, this novel explores themes of wealth, love, illusion, and the and American Dream through the mysterious Jay Gatsby.Set in the Roaring Twenties, this novel explores themes of wealth, love, illusion, and the and American Dream through the mysterious Jay Gatsby.Set in the Roaring Twenties, this novel explores themes of wealth, love, illusion, and the and American Dream through the mysterious Jay Gatsby.";
+    private string Genre = "Classic Fiction";
+    private string PublishedYear = "1925";
+    private string Language = "English";
+    private string CoverUrl = "/StaticImages/book_cover_1.jpg"; // Replace with actual URL or path
+
+    private void ReadNow()
+    {
+        NavigationManager.NavigateTo($"/read-book/{Title.Replace(" ", "-")}");
+    }
+
+    private void AddToLibrary()
+    {
+        Console.WriteLine("Book added to library");
+    }
+}
+}

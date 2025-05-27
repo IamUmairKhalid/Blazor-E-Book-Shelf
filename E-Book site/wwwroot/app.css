@@ -2,7 +2,7 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-a, .btn-link {
+ .btn-link {
     color: #006bb7;
 }
 
@@ -58,3 +58,91 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/*icon color*/
+.circle-icon {
+    background-color: #FF6D3F;
+    color: white;
+    border-radius: 50%;
+    padding: 15px;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+}
+
+.card-hover {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+    /* Hover effect */
+    .card-hover:hover {
+        transform: scale(1.02);
+        transition: transform 0.2s ease-in-out;
+    }
+
+/* Base style for the element */
+.hover-effect {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+    /* Hover effect */
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+.hover-in {
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+    /* Hover effect */
+    .hover-in:hover {
+        transform: scale(1.07);
+        transition: transform 0.2s ease-in-out;
+    }
+
+/*side bar*/
+
+.sidebar {
+    background: linear-gradient(to bottom, #FAF9F6, #EDEDED);
+    font-family: 'Merriweather', serif; /* Matching your header */
+    font-size: 18px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    height: 100vh;
+    position: fixed;
+    top: 10px;
+    left: 0;
+    width: 250px;
+    z-index: 1000;
+}
+
+    .sidebar .nav-link {
+        color: #1B263B;
+        font-weight: 600;
+        transition: background-color 0.2s ease-in-out, border-left 0.2s;
+    }
+
+        .sidebar .nav-link.active {
+            background-color: #FF6F3C; 
+        }
+
+
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 111, 60, 0.1); 
+            border-left: 4px solid #FF6F3C;
+        }
+
+
+.main-content {
+    margin-left: 250px;
+    padding: 1rem;
+}
+
+    

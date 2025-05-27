@@ -1,0 +1,76 @@
+﻿@page "/readbook"
+@layout UserLayout
+
+<h1>@InitialPageNumber</h1>
+@if (loadError)
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> Failed to load the PDF. Please check the Dropbox link or try again later.
+    </div>
+}
+else if (!string.IsNullOrEmpty(pdfBase64String))
+{
+    <p>@eventLog</p>
+    <PdfViewer Class="mb-3"
+    Url="@($"data:application/pdf;base64,{pdfBase64String}")"
+    InitialPage="@InitialPageNumber"
+    OnDocumentLoaded="OnDocumentLoaded"
+    OnPageChanged="OnPageChanged" />
+}
+else
+{
+   
+    <p>@eventLog</p>
+}
+
+
+@code {
+    private string eventLog { get; set; } = $"Loading PDF...";
+    private string pdfBase64String="";
+    private bool loadError = false;
+    static public int InitialPageNumber { get; set; } = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Replace with your direct Dropbox download link
+            var dropboxUrl = "https://www.dropbox.com/scl/fi/g0e93grcg75s7pyp09bjk/VP-lab-11-1.pdf?rlkey=ortfnw38mo0yrrbvw4moxuzvm&dl=1";
+
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(dropboxUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var pdfBytes = await response.Content.ReadAsByteArrayAsync();
+                pdfBase64String = Convert.ToBase64String(pdfBytes);
+            }
+            else
+            {
+                loadError = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            loadError = true;
+            Console.WriteLine($"PDF load failed: {ex.Message}");
+        }
+    }
+
+
+    private void OnDocumentLoaded(PdfViewerEventArgs args)
+    {
+        eventLog = $"CurrentPage: {args.CurrentPage}, TotalPages: {args.TotalPages}";
+
+    }
+
+
+    private void OnPageChanged(PdfViewerEventArgs args)
+    {
+        InitialPageNumber = args.CurrentPage;
+        eventLog = $"CurrentPage: {args.CurrentPage}, TotalPages: {args.TotalPages}";
+        
+    }
+    
+} 
+
