@@ -1,24 +1,62 @@
-﻿<!-- Card Start -->
+﻿
+<!-- Card Start -->
 
-<div class="container mt-3 mb-3">
-    <Card Style="width: auto;" Class="shadow-sm card text-center">
-        <CardHeader Style="background-color: #1B263B; color: #FAF9F6;" Class="text-center">
-            Featured Book
-        </CardHeader>
-        <CardBody Style="background-color: #FFFFFF;">
-            <CardTitle Class="text-center" Style="color: #1B263B">Bestseller of the Month</CardTitle>
-            <CardText Style="color: #1B263B">
-                Discover our hand-picked book of the month, packed with thrilling stories and deep insights.
-            </CardText>
-            <Button Color="ButtonColor.None" Style="background-color: #FF5722; border-color: #FF5722; color: #FFFFFF;" To="/books/bestseller" Type="ButtonType.Link" Class="w-100">
-                Explore Now
-            </Button>
-        </CardBody>
-    </Card>
+<div class="container mt-5 mb-5">
+    <h2 class="text-center mb-4" style="color: #000;"><b>New Books!!!</b></h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var book in Books)
+        {
+            <div class="col">
+                <div class="card card-hover h-100 shadow-sm d-flex flex-column"
+                     style="cursor:pointer"
+                     @onclick="() => OpenBook(book.Link)">
+
+                    <!-- Slightly smaller image container -->
+                    <div class="overflow-hidden" style="height:320px;">
+                        <img src="@book.CoverUrl"
+                             alt="Book cover"
+                             class="w-100 h-100"
+                             style="object-fit: cover;">
+                    </div>
+
+                    <!-- Book title and author -->
+                    <div class="card-body text-center mt-auto">
+                        <h5 class="card-title mb-1">@book.Title</h5>
+                        <p class="card-text text-muted mb-0">@book.Author</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
+
 
 <!-- Card End -->
 
 @code {
+    @code {
+        public class Book
+        {
+            public string Title { get; set; }
+            public string CoverUrl { get; set; }
+            public string Author { get; set; }
+            public string Link { get; set; }
+        }
+
+        List<Book> Books = new List<Book>
+    {
+        new Book { Title = "English", Author = "Muhammad Umair Khan", CoverUrl = "StaticImages/Carousel_img_1.jpg", Link = "/bookdetail" },
+        new Book { Title = "The Moon and Stars", Author = "Author B", CoverUrl = "StaticImages/book_cover_1.jpg", Link = "/bookdetail" },
+        new Book { Title = "The lost kingdom", Author = "Author A", CoverUrl = "StaticImages/book_cover_2.jpg", Link = "/bookdetail" },
+        new Book { Title = "The lost Kingdom", Author = "Author B", CoverUrl = "StaticImages/book_cover_2.jpg", Link = "/bookdetail" },
+        new Book { Title = "Multivariab Calculus and analytical geometry", Author = "Author A Muhammad Umair Khan", CoverUrl = "StaticImages/Carousel_img_1.jpg", Link = "/bookdetail" },
+        new Book { Title = "The Moon and Stars", Author = "Author B", CoverUrl = "StaticImages/book_cover_1.jpg", Link = "/bookdetail" },
+    };
+
+        private void OpenBook(string link)
+        {
+            NavigationManager.NavigateTo(link);
+        }
+    }
 
 }

@@ -1,0 +1,61 @@
+﻿@page "/userdashboard"
+@layout UserLayout
+<h3 class="mb-4">📚 Welcome to Your Reading Panel</h3>
+
+<div class="row">
+    <!-- My Collection -->
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body">
+                <h5 class="card-title">My Collection</h5>
+                <p class="card-text fs-4">@BookCount books</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reading History -->
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-info h-100">
+            <div class="card-body">
+                <h5 class="card-title">Reading History</h5>
+                <p class="card-text fs-4">@HistoryCount items</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookmarks -->
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body">
+                <h5 class="card-title">Bookmarks</h5>
+                <p class="card-text fs-4">@BookmarkCount bookmarks</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Reading Progress</h5>
+                <div class="progress mt-2" style="height: 25px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
+                         role="progressbar"
+                         style="width: @ProgressPercent%"
+                         aria-valuenow="@ProgressPercent"
+                         aria-valuemin="0"
+                         aria-valuemax="100">
+                        @ProgressPercent%
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int BookCount = 12;
+    private int HistoryCount = 5;
+    private int BookmarkCount = 8;
+    private int ProgressPercent = 65;
+}

@@ -1,0 +1,92 @@
+﻿@page "/userprofile"
+@layout UserLayout
+
+<PageTitle>User Profile</PageTitle>
+
+<div class="container card mt-2 mb-2">
+    <div class="row justify-content-center mt-5 mb-5">
+
+        <div class="col-md-6">
+            <h1>Profile</h1>
+            <EditForm Model="@userProfile" OnValidSubmit="HandleValidSubmit" class="row g-3">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="col-md-6 ">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control" @bind-Value="userProfile.Name" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <InputText class="form-control" @bind-Value="userProfile.Email" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Birthday</label>
+                    <InputDate class="form-control" @bind-Value="userProfile.Birthday" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Age</label>
+                    <InputNumber class="form-control" @bind-Value="userProfile.Age" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Image Name</label>
+                    <InputText class="form-control" @bind-Value="userProfile.Image" readonly />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Photo</label>
+                    <InputFile OnChange="HandlePhotoUpload" class="form-control" />
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Address</label>
+                    <InputText class="form-control" @bind-Value="userProfile.Address" />
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Description One</label>
+                    <InputTextArea class="form-control" @bind-Value="userProfile.DesOne" />
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary mt-3">SAVE</button>
+                </div>
+            </EditForm>
+        </div>
+
+        <div class="col-md-4 text-center mt-2">
+            <img src="StaticImages/Carousel_img_1.jpg" alt="Profile Image" class="mt-5 rounded-circle" style="height: 350px; width: 350px; object-fit: cover;" />
+        </div>
+    </div>
+</div>
+
+@code {
+    private UserProfileModel userProfile = new();
+
+    private async Task HandlePhotoUpload(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        userProfile.Image = file.Name;
+
+        // Optionally save to wwwroot/images here
+        var path = Path.Combine("wwwroot/images", file.Name);
+        using var fs = new FileStream(path, FileMode.Create);
+        await file.OpenReadStream().CopyToAsync(fs);
+    }
+
+    private void HandleValidSubmit()
+    {
+        Console.WriteLine("Profile saved successfully.");
+    }
+
+    public class UserProfileModel
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string Degree { get; set; }
+        public DateTime Birthday { get; set; }
+        public int Age { get; set; }
+        public string FreelanceStatus { get; set; }
+        public string Image { get; set; }
+        public string Address { get; set; }
+        public string DesOne { get; set; }
+        public string DesTwo { get; set; }
+    }
+}

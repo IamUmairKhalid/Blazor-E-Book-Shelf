@@ -52,7 +52,7 @@
 
     protected override void OnInitialized()
     {
-        timer = new System.Timers.Timer(20);
+        timer = new System.Timers.Timer(40);
         timer.Elapsed += (s, e) => InvokeAsync(UpdateCounters);
         timer.Start();
     }
@@ -61,9 +61,9 @@
     {
         bool stillRunning = false;
 
-        if (animatedUsers < totalUsers) { animatedUsers++; stillRunning = true; }
-        if (animatedBooks < totalBooks) { animatedBooks += 2; stillRunning = true; }
-        if (animatedReads < totalReads) { animatedReads += 10; stillRunning = true; }
+        if (animatedUsers < totalUsers) { animatedUsers+= 2; stillRunning = true; }
+        if (animatedBooks < totalBooks) { animatedBooks += 4; stillRunning = true; }
+        if (animatedReads < totalReads) { animatedReads += 2; stillRunning = true; }
         if (animatedActiveReaders < activeReaders) { animatedActiveReaders++; stillRunning = true; }
 
         if (!stillRunning)
