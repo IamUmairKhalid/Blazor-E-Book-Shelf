@@ -10,7 +10,7 @@
             <h2 class="fw-bold">User Dashboard</h2>
         </div>
     </div>
-
+    
     <div class="row g-4">
         <!-- Last Seen Book -->
         <div class="col-md-4">
@@ -19,7 +19,7 @@
                     <i class="bi bi-book-half fs-1 text-primary"></i>
                     <h5 class="card-title mt-3">Continue Reading</h5>
                     <p class="card-text">Resume from page 12 of "VP Lab 11"</p>
-                    <a href="/readbook" class="btn btn-primary">Resume</a>
+                    <a href="/readbook/{@id}" class="btn btn-primary">Resume</a>
                 </div>
             </div>
         </div>
@@ -75,85 +75,6 @@
 </div>
 
 @code {
-    // Here you can bind real data from backend or service
+    public int id { get; set; } = 2;
 }
 
-
-
-<div class="tab-content p-4 bg-white shadow-sm border rounded-4">
-    <!-- Profile Tab -->
-    <div class="tab-pane fade show active" id="profile">
-        <h3>Welcome, @UserName!</h3>
-        <p><strong>Email:</strong> umair@example.com</p>
-        <p><strong>Membership:</strong> Premium Plan</p>
-    </div>
-
-    <!-- My Books Tab -->
-    <div class="tab-pane fade" id="mybooks">
-        <h4>Your Library</h4>
-        <div class="row">
-
-            @foreach (var book in UserBooks)
-            {
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <img src="@book.CoverUrl" class="card-img-top" alt="Book Cover">
-                        <div class="card-body">
-                            <h5 class="card-title">@book.Title</h5>
-                            <p class="card-text text-muted">@book.Author</p>
-                            <a href="readbook" class="btn btn-primary btn-sm">Read Now</a>
-                        </div>
-                    </div>
-                </div>
-            }
-
-        </div>
-    </div>
-
-    <!-- Bookmarks Tab -->
-    <div class="tab-pane fade" id="bookmarks">
-        <h4>Bookmarked Pages</h4>
-        <ul>
-            <li>"The Alchemist" – Page 15</li>
-            <li>"Clean Code" – Page 78</li>
-        </ul>
-    </div>
-
-    <!-- Downloads Tab -->
-    <div class="tab-pane fade" id="downloads">
-        <h4>Downloaded Books</h4>
-        <p>You have downloaded 2 books for offline reading.</p>
-        <ul>
-            <li>"Atomic Habits"</li>
-            <li>"The Alchemist"</li>
-        </ul>
-    </div>
-
-    <!-- History Tab -->
-    <div class="tab-pane fade" id="history">
-        <h4>Reading History</h4>
-        <ul>
-            <li>Read "Atomic Habits" - May 25</li>
-            <li>Read "Clean Code" - May 20</li>
-        </ul>
-    </div>
-</div>
-
-@code {
-    string UserName = "Umair Khalid";
-
-    class Book
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Author { get; set; }
-        public string CoverUrl { get; set; }
-    }
-
-    List<Book> UserBooks = new()
-    {
-        new() { Id = 1, Title = "The Alchemist", Author = "Paulo Coelho", CoverUrl = "images/alchemist.jpg" },
-        new() { Id = 2, Title = "Clean Code", Author = "Robert C. Martin", CoverUrl = "images/cleancode.jpg" },
-        new() { Id = 3, Title = "Atomic Habits", Author = "James Clear", CoverUrl = "images/atomichabits.jpg" }
-    };
-}

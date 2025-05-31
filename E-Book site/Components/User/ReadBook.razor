@@ -1,4 +1,4 @@
-﻿@page "/readbook"
+﻿@page "/readbook/{BookId:int?}"
 @layout UserLayout
 
 <h1>@InitialPageNumber</h1>
@@ -19,23 +19,26 @@ else if (!string.IsNullOrEmpty(pdfBase64String))
 }
 else
 {
-   
+
     <p>@eventLog</p>
 }
 
 
 @code {
+    [Parameter] public int BookId { get; set; }
     private string eventLog { get; set; } = $"Loading PDF...";
     private string pdfBase64String="";
     private bool loadError = false;
     static public int InitialPageNumber { get; set; } = 1;
-
+    private Book? book;
     protected override async Task OnInitializedAsync()
     {
+        book = await Db.Books.FindAsync(BookId);
+    
         try
         {
-            // Replace with your direct Dropbox download link
-            var dropboxUrl = "https://www.dropbox.com/scl/fi/g0e93grcg75s7pyp09bjk/VP-lab-11-1.pdf?rlkey=ortfnw38mo0yrrbvw4moxuzvm&dl=1";
+            
+            var dropboxUrl = book.Link;
 
             using var httpClient = new HttpClient();
             var response = await httpClient.GetAsync(dropboxUrl);

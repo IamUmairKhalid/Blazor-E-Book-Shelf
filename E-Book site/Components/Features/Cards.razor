@@ -8,15 +8,15 @@
         {
             <div class="col">
                 <div class="card card-hover h-100 shadow-sm d-flex flex-column"
-                     style="cursor:pointer"
-                     @onclick="() => OpenBook(book.Link)">
+                style="cursor:pointer"
+                @onclick="() => OpenBook(book.Link)">
 
                     <!-- Slightly smaller image container -->
                     <div class="overflow-hidden" style="height:320px;">
                         <img src="@book.CoverUrl"
-                             alt="Book cover"
-                             class="w-100 h-100"
-                             style="object-fit: cover;">
+                        alt="Book cover"
+                        class="w-100 h-100"
+                        style="object-fit: cover;">
                     </div>
 
                     <!-- Book title and author -->
@@ -37,10 +37,10 @@
     @code {
         public class Book
         {
-            public string Title { get; set; }
-            public string CoverUrl { get; set; }
-            public string Author { get; set; }
-            public string Link { get; set; }
+            public string Title { get; set; } = "";
+            public string CoverUrl { get; set; } = "";
+            public string Author { get; set; } = "";
+            public string Link { get; set; } = "";
         }
 
         List<Book> Books = new List<Book>

@@ -1,0 +1,57 @@
+﻿
+
+<div class="topbar-row border-3 shadow-sm p-0 ps-3 navbar navbar-dark" style=" background-color: rgba(0, 0, 0, 0.4);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">E-Book Shelf 📚</a>
+    </div>
+</div>
+
+
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <div class=" d-flex justify-content-center mt-3">
+        <div class=" text-center ">
+            <img src="/StaticImages/book_cover_1.jpg" class="rounded-circle shadow mb-3" alt="Umair Khalid" width="130" height="130">
+            <h4>Umair Khalid</h4>
+           
+        </div>
+  
+    </div>
+    <hr class="custom-hr" />
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/Admin" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Dashboard
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="cards">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="bookdetail">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <DropdownMenu>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Menu item</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Menu item</DropdownItem>
+                <DropdownItem To="#" Type="DropdownItemType.Link">Menu item</DropdownItem>
+            </DropdownMenu>
+        </div>
+    </nav>
+
+    <hr class="custom-hr" />
+    <div class=" d-flex justify-content-center mt-3">
+        <a>
+
+        </a>
+    </div>
+</div>
+

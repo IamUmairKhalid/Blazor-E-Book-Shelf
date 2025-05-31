@@ -1,0 +1,96 @@
+﻿@layout AdminLayout
+
+@page "/Admin/add-edit-book/{BookId:int?}"
+@inject NavigationManager Navigation
+
+<PageTitle>Add/Edit Book</PageTitle>
+
+
+<div class="container mt-2 mb-4 card shadow-lg p-5">
+    <div class="row g-4 ">
+        <EditForm Model="@book" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+        
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label>Title</label>
+                    <InputText class="form-control" @bind-Value="book.Title" />
+                </div>
+        
+                <div class="col-md-6">
+                    <label>Author</label>
+                    <InputText class="form-control" @bind-Value="book.Author" />
+                </div>
+        
+                <div class="col-md-6">
+                    <label>Genre</label>
+                    <InputText class="form-control" @bind-Value="book.Genre" />
+                </div>
+        
+                <div class="col-md-6">
+                    <label>ISBN</label>
+                    <InputText class="form-control" @bind-Value="book.ISBN" />
+                </div>
+        
+                <div class="col-md-6">
+                    <label>Publish Date</label>
+                    <InputDate class="form-control" @bind-Value="book.PublishDate" />
+                </div>
+        
+                <div class="col-md-6">
+                    <label>Rating</label>
+                    <InputNumber class="form-control" @bind-Value="book.Rating" step="0.1" />
+                </div>
+        
+                <div class="col-md-6">
+                    <label>Number Of Ratings</label>
+                    <InputNumber class="form-control" @bind-Value="book.RatingCount" step="0.1" />
+                </div>
+        
+                <div class="col-12">
+                    <label>Description</label>
+                    <InputTextArea class="form-control" @bind-Value="book.Description" rows="3" />
+                </div>
+        
+                <div class="col-md-6">
+                    <label>Cover URL</label>
+                    <InputText class="form-control" @bind-Value="book.CoverUrl" />
+                </div>
+        
+                <div class="col-md-6">
+                    <label>PDF Link</label>
+                    <InputText class="form-control" @bind-Value="book.Link" />
+                </div>
+        
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+@code {
+    [Parameter] public int? BookId { get; set; }
+
+    private Book book = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (BookId.HasValue)
+        {
+            book = await Db.Books.FindAsync(BookId.Value) ?? new Book();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (book.Id == 0)
+            Db.Books.Add(book);
+        else
+            Db.Books.Update(book);
+
+        await Db.SaveChangesAsync();
+        Navigation.NavigateTo("/search"); // Replace with your book listing page
+    }
+}
