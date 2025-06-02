@@ -14,11 +14,20 @@
                 .IsUnique(); // Prevents duplicate user-book entries
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<AboutTeamMember>()
+                .HasOne(a => a.Users)
+                .WithMany() // optional: .WithMany(u => u.AboutTeamMemberships)
+                .HasForeignKey(a => a.UserId);
         }
 
         public DbSet<Book> Books { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<BooksLogs> BooksLogs { get; set; }
+        public DbSet<AboutUs> AboutUs { get; set; }
+        public DbSet<AboutTeamMember> AboutTeam { get; set; }
+        public DbSet<Testimonial> Testimonials { get; set; }
+        public DbSet<ContactUs> ContactUs { get; set; }
 
     }
 }

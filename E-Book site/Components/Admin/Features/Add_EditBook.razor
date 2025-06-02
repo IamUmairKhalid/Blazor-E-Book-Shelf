@@ -70,6 +70,12 @@
         </EditForm>
     </div>
 </div>
+
+
+
+
+
+
 @code {
     [Parameter] public int? BookId { get; set; }
 
@@ -93,4 +99,6 @@
         await Db.SaveChangesAsync();
         Navigation.NavigateTo("/search"); // Replace with your book listing page
     }
+
+
 }

@@ -12,12 +12,28 @@
 
     <main>
         <div class="top-row px-4 border-3 shadow-sm p-0" style="font-family: 'Open Sans' , sans-serif; font-weight: 600; color: #555555;">
-
             <AdminTopBar />
             <ThemeSwitcher />
+            <div class="d-flex justify-content-center">
+                <NavLink class="btn btn-outline-light hover-in " style="width: 47px; height: 40px" @onclick="ShowLogoutModal">
+                    <i class="bi bi-box-arrow-left fs-5"></i>
+                </NavLink>
+            </div>
         </div>
 
         <article class="content px-4">
+            <!--Modal Start-->
+
+            <Modal @ref="signoutModal" Title="Confirm SignOut" UseStaticBackdrop="true" CloseOnEscape="false" IsCentered="true">
+                <BodyTemplate>
+                    Are you sure you want to SignOut?
+                </BodyTemplate>
+                <FooterTemplate>
+                    <Button Color="ButtonColor.Secondary" @onclick="HideLogoutModal">Cancel</Button>
+                    <Button Color="ButtonColor.Danger" @onclick="ConfirmLogout">Signout</Button>
+                </FooterTemplate>
+            </Modal>
+            <!--Modal Ends-->
             @Body
         </article>
     </main>
@@ -25,3 +41,26 @@
 
 
 
+@code {
+    private Modal signoutModal = default!;
+
+    private async Task ShowLogoutModal()
+    {
+        await signoutModal.ShowAsync();
+    }
+
+    private async Task HideLogoutModal()
+    {
+        await signoutModal.HideAsync();
+    }
+
+    private async Task ConfirmLogout()
+    {
+        await signoutModal.HideAsync();
+
+        // TODO: Add your logout logic here (clear auth tokens, sign out, etc.)
+        // optional UX delay
+
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+} 
