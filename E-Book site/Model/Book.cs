@@ -32,7 +32,7 @@ namespace E_Book_site.Model
         [Range(0, int.MaxValue, ErrorMessage = "Rating count cannot be negative.")]
         public int RatingCount { get; set; } = 0;
 
-        [Url(ErrorMessage = "Cover URL must be a valid URL.")]
+        [Required(ErrorMessage = "Cover URL is Required")]
         [MaxLength(500, ErrorMessage = "Cover URL cannot exceed 500 characters.")]
         public string CoverUrl { get; set; } = string.Empty;
 

@@ -37,7 +37,7 @@ namespace EBooksite.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AboutTeam");
+                    b.ToTable("AboutTeam", (string)null);
                 });
 
             modelBuilder.Entity("E_Book_site.Model.AboutUs", b =>
@@ -75,7 +75,7 @@ namespace EBooksite.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AboutUs");
+                    b.ToTable("AboutUs", (string)null);
                 });
 
             modelBuilder.Entity("E_Book_site.Model.Book", b =>
@@ -135,7 +135,7 @@ namespace EBooksite.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("E_Book_site.Model.BooksLogs", b =>
@@ -183,7 +183,7 @@ namespace EBooksite.Migrations
                     b.HasIndex("UserId", "BookId")
                         .IsUnique();
 
-                    b.ToTable("BooksLogs");
+                    b.ToTable("BooksLogs", (string)null);
                 });
 
             modelBuilder.Entity("E_Book_site.Model.ContactUs", b =>
@@ -218,7 +218,7 @@ namespace EBooksite.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactUs");
+                    b.ToTable("ContactUs", (string)null);
                 });
 
             modelBuilder.Entity("E_Book_site.Model.Testimonial", b =>
@@ -252,7 +252,7 @@ namespace EBooksite.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Testimonials");
+                    b.ToTable("Testimonials", (string)null);
                 });
 
             modelBuilder.Entity("E_Book_site.Model.Users", b =>
@@ -309,7 +309,7 @@ namespace EBooksite.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("E_Book_site.Model.AboutTeamMember", b =>
