@@ -15,19 +15,19 @@
                     <div class="circle-icon me-3">
                         <i class="bi bi-geo-alt-fill"></i>
                     </div>
-                    <span><strong>Address<br /></strong> House 40B, Street 30, F8/1, Islamabad</span>
+                    <span><strong>Address<br /></strong>@aboutUs.Address</span>
                 </li>
                 <li class="mb-4 d-flex align-items-center">
                     <div class="circle-icon me-3">
                         <i class="bi bi-envelope-fill"></i>
                     </div>
-                    <span><strong>Email<br /></strong> itsumairkhalid@gmail.com</span>
+                    <span><strong>Email<br /></strong> @aboutUs.Email</span>
                 </li>
                 <li class="mb-4 d-flex align-items-center">
                     <div class="circle-icon me-3">
                         <i class="bi bi-telephone-fill"></i>
                     </div>
-                    <span><strong>Phone<br /></strong> +92 319 3708558</span>
+                    <span><strong>Phone<br /></strong>@aboutUs.Phone</span>
                 </li>
             </ul>
         </div>
@@ -76,6 +76,14 @@
 @code {
     List<ToastMessage> messages = new List<ToastMessage>();
     private Model.ContactUs contact = new();
+    private Model.AboutUs? aboutUs;
+
+    protected override void OnInitialized()
+    {
+        // Initialize any necessary data or services here
+        aboutUs = Db.AboutUs.FirstOrDefault();
+
+    }
 
     private void HandleSubmit()
     {

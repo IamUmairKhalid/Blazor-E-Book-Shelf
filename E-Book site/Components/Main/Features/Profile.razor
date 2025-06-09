@@ -1,10 +1,4 @@
-﻿@layout UserLayout
-@page "/userprofile"
-@rendermode InteractiveServer
-@* @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = "Admin")] *@
-
-@inject IWebHostEnvironment env;
+﻿@inject IWebHostEnvironment env;
 
 <!--Profile-->
 <div class="container card mt-2 mb-4">
@@ -59,9 +53,10 @@
 
 
 @code {
-    public int Id { get; set; } = 11;
+    [Parameter]
+    public int Id { get; set; }
     List<ToastMessage> messages = new List<ToastMessage>();
-    private Users Users { get; set; }
+    private Users? Users{ get; set; }
     private IBrowserFile? uploadedFile;
 
     protected override void OnInitialized()
@@ -82,43 +77,41 @@
         {
 
             var fileName = uploadedFile.Name;
-            string imageName = $"{Users.Id}_{Users.UserName}_{fileName}";
+            string ImageName = $"{Users.Id}_{Users.UserName}.jpg";
 
-
-            string old_image = Users.ProfilePictureUrl;
-            DeletePicture(old_image);
+            // string old_image = Users.ProfilePictureUrl;
+            // DeletePicture(old_image);
 
             var FolderPath = Path.Combine(env.WebRootPath, "ProfileImages");
-            var ImagePath = Path.Combine(FolderPath, imageName);
+            var ImagePath = Path.Combine(FolderPath, ImageName);
 
 
             await using var myFileStream = new FileStream(ImagePath, FileMode.Create);
             await uploadedFile.OpenReadStream(5 * 1024 * 1024).CopyToAsync(myFileStream); // 5 MB limit
-            myFileStream.Close();
 
-            Users.ProfilePictureUrl = imageName;
+            Users.ProfilePictureUrl = ImageName;
         }
 
         Db.Users.Update(Users);
         await Db.SaveChangesAsync();
         messages.Add(CreateUpdateMessage(ToastType.Success));
         uploadedFile = null;
-
-
+        Users = Db.Users.Where(c => c.Id == Id).FirstOrDefault() ?? new Users();
+        
     }
+        
+    // private void DeletePicture(string old_pic)
+    // {
+    //     var FolderPath = Path.Combine(env.WebRootPath, "ProfileImages");
+    //     var ImagePath = Path.Combine(FolderPath, old_pic);
 
-    private void DeletePicture(string old_pic)
-    {
-        var FolderPath = Path.Combine(env.WebRootPath, "ProfileImages");
-        var ImagePath = Path.Combine(FolderPath, old_pic);
+    //     var flag = System.IO.File.Exists(ImagePath);
 
-        var flag = System.IO.File.Exists(ImagePath);
-
-        if (flag)
-        {
-            System.IO.File.Delete(ImagePath);
-        }
-    }
+    //     if (flag)
+    //     {
+    //         System.IO.File.Delete(ImagePath);
+    //     }
+    // }
 
 
     <!-- Update Message Start-->
@@ -131,4 +124,5 @@
                Message = $"Hello,The Record is Successfully Saved. DateTime: {DateTime.Now}",
            };
     <!-- Update Message End-->
+
 }

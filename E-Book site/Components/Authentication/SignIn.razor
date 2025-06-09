@@ -1,0 +1,106 @@
+﻿@page "/SignIn/{Id:int?}"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@layout BlankLayout
+<PageTitle>User Sign In</PageTitle>
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="card shadow-lg p-4" style="width: 100%; max-width: 450px;">
+        <div class="card-body">
+            <h3 class="text-center mb-4">Sign In</h3>
+
+            <EditForm Model="Users" method="post" FormName="SignIn" OnValidSubmit="HandleSignInAsync">
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <InputText type="email" class="form-control" @bind-Value="Users.Email" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <InputText type="password" class="form-control" @bind-Value="Users.Password" />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Sign In</button>
+            </EditForm>
+
+            <div class="mt-3 text-center">
+                <span>Don't have an account? </span>
+                <a href="signup">Create Account</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Toaster Alert message-->
+<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopCenter" />
+
+@code {
+
+
+    [Parameter] public int? Id { get; set; }
+
+
+    List<ToastMessage> messages = new List<ToastMessage>();
+
+    [SupplyParameterFromForm]
+    public Users Users { get; set; } = new();
+
+    [CascadingParameter]
+    public HttpContext? _HttpContext { get; set; } 
+
+    private async Task HandleSignInAsync()
+    {
+        var ValidUser = Db.Users.Where(e => e.Email == Users.Email && e.Password == Users.Password).FirstOrDefault();
+        if (ValidUser is null)
+        {
+            NavigationManager.NavigateTo("/SignIn");
+            messages.Add(CreateToastMessage(ToastType.Danger));
+        }
+        
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, ValidUser.UserName),
+            new Claim(ClaimTypes.Email, ValidUser.Email),
+            new Claim(ClaimTypes.Role, ValidUser.Role)
+        };
+        
+        var Identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var Principal = new ClaimsPrincipal(Identity);
+
+        await _HttpContext.SignInAsync(Principal);
+        NavigationManager.NavigateTo("/Admin");
+
+
+        // else if (ValidUser.Role == "Admin" && Id == null)
+        // {
+        //     NavigationManager.NavigateTo("/Admin");
+        // }
+        // else if (ValidUser.Role == "User" && Id == null)
+        // {
+        //     NavigationManager.NavigateTo("/userdashboard");
+        // }
+        // else if (Id != null)
+        // {
+        //     NavigationManager.NavigateTo($"readbook/{Id}");
+        // }
+        // else
+        // {
+        //     messages.Add(CreateToastMessage(ToastType.Warning));
+        //     NavigationManager.NavigateTo("/");
+        // }
+        
+    }
+
+    <!-- Delete Message -->
+    private ToastMessage CreateToastMessage(ToastType toastType)
+       => new ToastMessage
+           {
+               Type = toastType,
+               Title = "Message",
+               HelpText = $"{DateTime.Now}",
+               Message = $"Hello,The Email Or Password Is Incorrect. DateTime: {DateTime.Now}",
+           };
+}
+

@@ -1,14 +1,16 @@
 ﻿@page "/Admin/booksdetails"
 @layout AdminLayout
+@* @using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")] *@
 @rendermode InteractiveServer
 
 <!-- Card Start -->
 
 <div class="container mt-5 mb-5">
     <h2 class="text-center mb-4" style="color: #000;"><b>Books Record</b></h2>
-    <a @onclick="()=>OnUpdateClick(null)" class="btn btn-outline-primary" style="width: 47px; height: 40px">
-        <i class="bi bi-file-earmark-plus fs-5"></i>
-    </a>
+    <Button @onclick="()=>OnUpdateClick(null)" class="btn btn-outline-primary" style="height: 40px">
+        <i class="bi bi-file-earmark-plus fs-5"></i><span class="fs-5">AddBook</span>
+    </Button>
     <hr/>
     <div class="row row-cols-1 justify-content-center row-cols-md-3 g-4">
         @foreach (var book in Books)
@@ -133,7 +135,7 @@
 
 <!-- View Details End -->
 
-<!-- View Details Start-->
+<!-- Edit Details Start-->
 
 <Modal @ref="updatemodal" Title="Add Book Details" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.ExtraLarge">
     <BodyTemplate>
@@ -195,7 +197,7 @@
                             </div>
                             <hr/>
                             <div class="col-12 mt-3 text-end">
-                                <a @onclick="OnHideUpdateClick" class="btn btn-secondary " style="width: 47px; height: 40px">
+                                <a @onclick="()=>OnHideUpdateClick(details.Id)" class="btn btn-secondary " style="width: 47px; height: 40px">
                                     <i class="bi bi-x-lg fs-5"></i>
                                 </a>
                                 |
@@ -213,7 +215,7 @@
     </BodyTemplate>
 </Modal>
 
-<!-- View Details End -->
+<!-- Edit Details End -->
 
 
 <!-- Delete Message Start-->
@@ -257,7 +259,7 @@
 
     private async Task OnShowDetailClick(int id)
     {
-        details = Books.FirstOrDefault(c => c.Id == id);
+        details = Db.Books.FirstOrDefault(c => c.Id == id);
         await viewmodal.ShowAsync();
     }
 
@@ -272,7 +274,8 @@
 
     private async Task OnDeleteClick(int id)
     {
-        details = Books.FirstOrDefault(c => c.Id == id);
+        await viewmodal.HideAsync();
+        details = Db.Books.FirstOrDefault(c => c.Id == id);
         await deletemodal.ShowAsync();
     }
 
@@ -280,12 +283,13 @@
     {
 
         await deletemodal.HideAsync();
+        await viewmodal.ShowAsync();
     }
 
     private async Task OnConfirmDeleteClick(int id)
     {
 
-        var item = Books.FirstOrDefault(c => c.Id == id);
+        var item = Db.Books.FirstOrDefault(c => c.Id == id);
         if (item != null)
         {
             Db.Books.Remove(item);
@@ -294,7 +298,6 @@
             messages.Add(CreateDeleteMessage(ToastType.Danger));
         }
         await deletemodal.HideAsync();
-        await viewmodal.HideAsync();
     }
     <!-- Delete Record End-->
 
@@ -317,7 +320,7 @@
         if(id.HasValue)
         {
             await viewmodal.HideAsync();
-            details = Books.FirstOrDefault(c => c.Id == id);
+            details = Db.Books.FirstOrDefault(c => c.Id == id);
         }
         else
         {
@@ -326,9 +329,13 @@
         await updatemodal.ShowAsync();
     }
 
-    private async Task OnHideUpdateClick()
+    private async Task OnHideUpdateClick(int id)
     {
         await updatemodal.HideAsync();
+        if(id>0)
+        {
+            await viewmodal.ShowAsync();
+        }
     }
 
     private async Task HandleValidSubmit()
@@ -344,6 +351,7 @@
         await Db.SaveChangesAsync();
         Books = Db.Books.OrderByDescending(s => s.Id).ToList();
         await updatemodal.HideAsync();
+        await viewmodal.ShowAsync();
         messages.Add(CreateUpdateMessage(ToastType.Success));
     }
     <!-- Update Record Start-->

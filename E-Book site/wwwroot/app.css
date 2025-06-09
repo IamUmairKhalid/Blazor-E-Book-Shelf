@@ -117,3 +117,13 @@ h1:focus {
     margin: var(--top-margin, 1px) 0 var(--bottom-margin, 4px) 0;
 }
 
+thead.custom-header > tr > th {
+    background-image: linear-gradient(180deg, #FFA97A 30%, #FF6F3C 60%, #A8421A 100%) !important;
+    color: white !important;
+}
+
+thead.custom-header {
+    position: sticky;
+    top: 55px;
+    z-index: 1;
+}

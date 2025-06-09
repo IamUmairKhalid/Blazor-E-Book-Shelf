@@ -1,33 +1,28 @@
 ﻿@page "/about"
+@using Microsoft.EntityFrameworkCore
 
 <PageTitle>About Us</PageTitle>
 
 <div class="container my-5">
     <!-- Hero Section -->
     <div class="text-center mb-5 ">
-        <h1 class="display-4">About Us</h1>
+        <h2 class="display-4">About Us</h2>
         <p class="lead ">Meet the creators of your next favorite online book reading experience.</p>
     </div>
 
     <!-- Team Section -->
     <div class="row justify-content-center mb-5">
-        <div class="col-md-5 text-center ">
-            <img src="/StaticImages/book_cover_1.jpg" class="rounded-circle shadow mb-3" alt="Umair Khalid" width="180" height="180">
-            <h3>Umair Khalid</h3>
-            <p class="text-muted">Co-Founder & Developer</p>
-            <p>
-                Umair is passionate about technology and building web applications that make knowledge accessible.
-                He focuses on the backend and architecture of the platform.
-            </p>
-        </div>
-        <div class="col-md-5 text-center ">
-            <img src="/StaticImages/book_cover_2.jpg" class="rounded-circle shadow mb-3" alt="Laiba" width="180" height="180">
-            <h3>Laiba</h3>
-            <p class="text-muted">Co-Founder & UI/UX Designer</p>
-            <p>
-                Laiba designs intuitive, beautiful interfaces for readers. She ensures every page is a delightful experience for book lovers.
-            </p>
-        </div>
+       @foreach(var item in Team)
+        {
+            <div class="col-md-5 text-center ">
+                <img src="/ProfileImages/@item.Users.ProfilePictureUrl" class="rounded-circle shadow mb-3" alt="Umair Khalid" width="180" height="180">
+                <h3>@item.Users.UserName</h3>
+                <p class="text-muted">@item.Users.Designation</p>
+                <p>
+                    @item.Users.Bio
+                </p>
+            </div>
+        }
     </div>
 
     <!-- Mission & Vision Section -->
@@ -37,9 +32,9 @@
             <div class="col-md-10 mb-4">
                 <div class="border-0 shadow-sm rounded-4 p-4">
                     <div class="card-body">
-                        <h2 class="card-title text-primary mb-3">Our Mission</h2>
-                        <p class="card-text fs-5">
-                            To build an accessible, user-friendly online book reading platform where users can explore, read, and enjoy a rich library of books from anywhere.
+                        <h2 class=" text-primary mb-3">Our Mission</h2>
+                        <p class="card-text ">
+                            @aboutUs.Mission
                         </p>
                     </div>
                 </div>
@@ -49,9 +44,9 @@
             <div class="col-md-10">
                 <div class="border-0 shadow-sm rounded-4 p-4">
                     <div class="card-body">
-                        <h2 class="card-title text-success mb-3">Our Vision</h2>
-                        <p class="card-text fs-5">
-                            To promote a global reading culture by creating a digital space that connects readers with books, community, and lifelong learning.
+                        <h2 class=" text-success mb-3">Our Vision</h2>
+                        <p class="card-text ">
+                            @aboutUs.Vision
                         </p>
                     </div>
                 </div>
@@ -62,7 +57,18 @@
 
     <!-- Call to Action -->
     <div class="text-center mt-5 ">
-        <a class="btn hover-in btn-lg px-4 text-light" style="background-color: #FF6F3C" href="contactus">Get in Touch</a>
+        <a class="btn hover-in btn-md px-4 text-light" style="background-color: #FF6F3C" href="contactus">Get in Touch</a>
     </div>
 </div>
 
+@code{
+    private Model.AboutUs? aboutUs;
+    private IEnumerable<AboutTeamMember>? Team;
+    private Model.Users user;
+    protected override void OnInitialized()
+    {
+        aboutUs = Db.AboutUs.FirstOrDefault();
+        Team = Db.AboutTeam.Include(t=>t.Users).ToList();
+    }
+
+}

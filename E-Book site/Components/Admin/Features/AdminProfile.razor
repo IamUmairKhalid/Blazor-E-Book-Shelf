@@ -1,6 +1,7 @@
-﻿@layout UserLayout
-@page "/userprofile"
-@rendermode InteractiveServer
+﻿@layout AdminLayout
+@page "/Admin/adminprofile/{Id:int?}"
+@inject UserStateService UserState
+
 @* @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")] *@
 
@@ -59,7 +60,8 @@
 
 
 @code {
-    public int Id { get; set; } = 11;
+    [Parameter]
+    public int Id { get; set; }
     List<ToastMessage> messages = new List<ToastMessage>();
     private Users Users { get; set; }
     private IBrowserFile? uploadedFile;
@@ -103,18 +105,20 @@
         await Db.SaveChangesAsync();
         messages.Add(CreateUpdateMessage(ToastType.Success));
         uploadedFile = null;
+        UserState.SetUser(Users.Id, Users.UserName, $"/ProfileImages/{Users.ProfilePictureUrl}");
+        NavigationManager.NavigateTo($"/Admin/adminprofile/{Users.Id}");
 
 
     }
 
-    private void DeletePicture(string old_pic)
+        private void DeletePicture(string old_pic)
     {
         var FolderPath = Path.Combine(env.WebRootPath, "ProfileImages");
         var ImagePath = Path.Combine(FolderPath, old_pic);
 
-        var flag = System.IO.File.Exists(ImagePath);
+            var flag = System.IO.File.Exists(ImagePath);
 
-        if (flag)
+            if (flag)
         {
             System.IO.File.Delete(ImagePath);
         }

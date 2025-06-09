@@ -168,6 +168,6 @@ else
     
     
 
-    private void ReadNow() => NavigationManager.NavigateTo($"/readbook/{Book?.Id}");
+    private void ReadNow() => NavigationManager.NavigateTo($"/signin/{BookId}");
     private void AddToLibrary() => Console.WriteLine($"Added book {Book?.Id} to library.");
 }

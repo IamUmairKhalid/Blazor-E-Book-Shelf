@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E_Book_site.Model
 {
@@ -23,14 +24,14 @@ namespace E_Book_site.Model
         public string Email { get; set; } = string.Empty;
 
         [DataType(DataType.DateTime)]
-        public DateTime? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
 
         [DataType(DataType.Date)]
         public DateOnly? BirthDate { get; set; }
 
-        [Url(ErrorMessage = "Profile picture URL must be a valid URL.")]
+        [Required(ErrorMessage = "Profile picture URL Required.")]
         [StringLength(300, ErrorMessage = "Profile picture URL cannot exceed 300 characters.")]
-        public string? ProfilePictureUrl { get; set; } = string.Empty;
+        public string? ProfilePictureUrl { get; set; } = "StaticImages/alt_profile_pic.jpg";
 
         [StringLength(500, ErrorMessage = "Bio cannot exceed 500 characters.")]
         public string? Bio { get; set; } = string.Empty;
@@ -46,7 +47,7 @@ namespace E_Book_site.Model
 
         [Required(ErrorMessage = "Designation is required.")]
         [StringLength(100, ErrorMessage = "Designation cannot exceed 100 characters.")]
-        public string? Designation { get; set; }
+        public string? Designation { get; set; } = string.Empty;
         public ICollection<BooksLogs> BookLogs { get; set; } = new List<BooksLogs>();
     }
 }

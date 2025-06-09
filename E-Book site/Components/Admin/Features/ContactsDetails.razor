@@ -1,28 +1,31 @@
 ﻿@page "/Admin/ContactUsDetails"
 @layout AdminLayout
+@* @using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")] *@
 
-<div class="row justify-content-center ">
+<!-- Table -->
+
+<div class="row  justify-content-center ">
 
     <div class="col-md-10 justify-content-center">
         <h2>
             Contact Messages (@Count)
         </h2>
-        <table class="table mt-3 table-hover ">
-            <thead>
-                <tr>
+        <table border="1" class="table mt-3 table-hover ">
+            <thead class="custom-header">
+                <tr >
                     <th scope="col">#</th>
                     <th scope="col">Name</th>
                     <th scope="col">Email</th>
                     <th scope="col">Subject</th>
                     <th scope="col">Message</th>
                     <th scope="col">ReceivedAt</th>
-                    <th scope="col" colspan="2">Options</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in contactUs)
                 {
-                    <tr>
+                    <tr style="cursor:pointer" @onclick="() => OnShowDetailClick(item.Id)">
                         <td>@item.Id</td>
                         <td>@item.Name</td>
                         <td>
@@ -35,28 +38,16 @@
                             <span class="short-text">@(item.Message.Length > 20 ? item.Message.Substring(0, 20) + "..." : item.Message)</span>
                         </td>
                         <td>@item.CreatedAt</td>
-                        <td>
-                            <a @onclick="()=>OnShowDetailClick(item.Id)" class="btn btn-outline-primary " style="width: 47px; height: 40px">
-                                <i class="bi bi-clipboard2-fill fs-5"></i>
-                            </a>
-                            |
-                            <a @onclick="()=>OnDeleteClick(item.Id)" class="btn btn-outline-danger" style="width: 47px; height: 40px">
-                                <i class="bi bi-trash3 fs-5"></i>
-                            </a>
-                        </td>
                     </tr>
                 }
             </tbody>
         </table>
 
     </div>
-
 </div>
 
 
 <!-- View Message -->
-
-
 
 <Modal @ref="viewmodal" Title="ContactUs Detail" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Large">
     <BodyTemplate>
@@ -81,7 +72,13 @@
         </dl>
     </BodyTemplate>
     <FooterTemplate>
-        <Button Color="ButtonColor.Secondary" @onclick="OnHideDetailsClick">Close</Button>
+        <a @onclick="OnHideDetailsClick" class="btn btn-secondary " style="width: 47px; height: 40px">
+            <i class="bi bi-x-lg fs-5"></i>
+        </a>
+        |
+        <a @onclick="()=>OnDeleteClick(details.Id)" class="btn btn-outline-danger" style="width: 47px; height: 40px">
+            <i class="bi bi-trash3 fs-5"></i>
+        </a>
     </FooterTemplate>
 </Modal>
 
@@ -90,48 +87,31 @@
 
 <!-- Delete Message -->
 
-
-<Modal @ref="deletemodal" Title="Delete Record" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Large">
+<Modal @ref="deletemodal" Title="Delete Record" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Regular">
     <BodyTemplate>
-        <h3>
+        <h6>
             Are you sure you want to delete this record?
-        </h3>
-        <hr />
-        <dl class="row justify-content-center">
-            <dt class="col-sm-2">ID: </dt>
-            <dd class="col-sm-10"> @delete.Id</dd>
-
-            <dt class="col-sm-2">Name: </dt>
-            <dd class="col-sm-10"> @delete.Name</dd>
-
-            <dt class="col-sm-2">Email: </dt>
-            <dd class="col-sm-10"> @delete.Email</dd>
-
-            <dt class="col-sm-2">Subject: </dt>
-            <dd class="col-sm-10"> @delete.Subject</dd>
-
-            <dt class="col-sm-2">Message: </dt>
-            <dd class="col-sm-10"> @delete.Message</dd>
-
-            <dt class="col-sm-2">ReceivedAt: </dt>
-            <dd class="col-sm-10"> @delete.CreatedAt</dd>
-        </dl>
+        </h6>
     </BodyTemplate>
     <FooterTemplate>
         <Button Color="ButtonColor.Secondary" @onclick="OnCancelDeleteClick">Cancel</Button>
-        <Button Color="ButtonColor.Danger"  @onclick="()=>OnConfirmDeleteClick(delete.Id)">Confirm</Button>
+        <Button Color="ButtonColor.Danger"  @onclick="()=>OnConfirmDeleteClick(details.Id)">Confirm</Button>
     </FooterTemplate>
 </Modal>
 
+
+
 <!--Toaster Alert message-->
 <Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" />
+
+
+
 
 @code{
     List<ToastMessage> messages = new List<ToastMessage>();
     protected IEnumerable<Model.ContactUs> contactUs{ get; set; }
     private int Count => contactUs?.Count() ?? 0;
     private Model.ContactUs details;
-    private Model.ContactUs delete;
 
     protected override void OnInitialized()
     {
@@ -140,13 +120,13 @@
 
     }
 
-    <!-- View Record -->
+    <!-- View Record Modal-->
 
     private Modal viewmodal = default!;
 
     private async Task OnShowDetailClick(int id)
     {
-        details = contactUs.FirstOrDefault(c => c.Id == id);
+        details = Db.ContactUs.FirstOrDefault(c => c.Id == id);
         await viewmodal.ShowAsync();
     }
 
@@ -155,13 +135,14 @@
         await viewmodal.HideAsync();
     }
 
-    <!-- Delete Record -->
+    <!-- Delete Record Modal-->
 
     private Modal deletemodal = default!;
 
     private async Task OnDeleteClick(int id)
     {
-        delete = contactUs.FirstOrDefault(c => c.Id == id);
+        await viewmodal.HideAsync();
+        details = Db.ContactUs.FirstOrDefault(c => c.Id == id);
         await deletemodal.ShowAsync();
     }
 
@@ -173,7 +154,7 @@
 
     private async Task OnConfirmDeleteClick(int id)
     {
-        var item = contactUs.FirstOrDefault(c => c.Id == id);
+        var item = Db.ContactUs.FirstOrDefault(c => c.Id == id);
         if (item != null)
         {
             Db.ContactUs.Remove(item);
@@ -181,6 +162,7 @@
             contactUs = Db.ContactUs.OrderByDescending(c => c.CreatedAt).ToList();
             messages.Add(CreateToastMessage(ToastType.Danger));
         }
+        
         await deletemodal.HideAsync();
     }
 
