@@ -12,7 +12,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddRazorPages();
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddSingleton<UserStateService>();
 builder.Services.AddHttpContextAccessor();
@@ -44,9 +43,8 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
-app.MapRazorPages();
 
 app.Run();

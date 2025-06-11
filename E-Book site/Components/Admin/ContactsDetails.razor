@@ -111,7 +111,7 @@
     List<ToastMessage> messages = new List<ToastMessage>();
     protected IEnumerable<Model.ContactUs> contactUs{ get; set; }
     private int Count => contactUs?.Count() ?? 0;
-    private Model.ContactUs details;
+    private ContactUs details;
 
     protected override void OnInitialized()
     {

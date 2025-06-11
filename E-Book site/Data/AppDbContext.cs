@@ -28,6 +28,7 @@
         public DbSet<AboutTeamMember> AboutTeam { get; set; }
         public DbSet<Testimonial> Testimonials { get; set; }
         public DbSet<ContactUs> ContactUs { get; set; }
+        public DbSet<Social> Social { get; set; }
 
     }
 }
