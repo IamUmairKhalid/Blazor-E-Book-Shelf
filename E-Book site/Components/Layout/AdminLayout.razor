@@ -1,0 +1,51 @@
+﻿@inherits LayoutComponentBase
+
+<HeadContent >
+    <link rel="stylesheet" href="@Assets["AdminLayout.css"]" />
+    <link href="AdminMenu.css" rel="stylesheet" />
+</HeadContent>
+
+<div class="page">
+    <div class="sidebar">
+        <AdminMenu/>
+    </div>
+
+    <main>
+        <div class="top-row px-4 border-3 shadow-sm p-0" style="font-family: 'Open Sans' , sans-serif; font-weight: 600; color: #555555;">
+            <AdminTopBar />
+            <div class="d-flex justify-content-center">
+                <NavLink class="btn btn-outline-light hover-in " style="width: 47px; height: 40px" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    <i class="bi bi-box-arrow-left fs-5"></i>
+                </NavLink>
+            </div>
+        </div>
+
+        <article class="content px-4">          
+            <!-- Modal -->
+            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Confirm SignOut</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to SignOut?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <a  href="/signout" class="btn btn-danger">SignOut</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @Body
+        </article>
+    </main>
+</div>
+
+
+
+@code {
+    
+} 

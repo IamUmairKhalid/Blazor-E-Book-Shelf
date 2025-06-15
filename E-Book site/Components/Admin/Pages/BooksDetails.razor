@@ -1,0 +1,372 @@
+﻿@page "/Admin/booksdetails"
+@layout AdminLayout
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+<!-- Card Start -->
+
+<div class="container mt-5 mb-5">
+    <h2 class="text-center mb-4" style="color: #000;"><b>Books Record</b></h2>
+    <Button @onclick="()=>OnUpdateClick(null)" class="btn btn-outline-primary" style="height: 40px">
+        <i class="bi bi-file-earmark-plus fs-5"></i><span class="fs-5">AddBook</span>
+    </Button>
+    <hr/>
+    <div class="row row-cols-1 justify-content-center row-cols-md-3 g-4">
+        @foreach (var book in Books)
+        {
+
+            <div class="col">
+                <div class="card card-hover h-100 shadow-sm d-flex flex-column"
+                style="cursor:pointer"
+                @onclick="() => OnShowDetailClick(book.Id)">
+
+                    <!-- Slightly smaller image container -->
+                    <div class="overflow-hidden" style="height:320px;">
+                        <img src="@book.CoverUrl"
+                        alt="Book cover"
+                        class="w-100 h-100"
+                        style="object-fit: cover;">
+                    </div>
+
+                    <!-- Book title and author -->
+                    <div class="card-body text-center mt-auto">
+                        <h5 class="card-title mb-1">@book.Title</h5>
+                        <p class="card-text text-muted mb-0">@book.Author</p>
+                        <div class="text-yellow-500" style="color: gold;">
+                            @for (int i = 0; i < (int)book.Rating; i++)
+                            {   
+                                <i class="fas fa-star"></i>
+                            }
+
+                            @if (book.Rating - (int)book.Rating >= 0.25 && book.Rating - (int)book.Rating < 0.75)
+                            {
+                                <i class="fas fa-star-half-alt"></i>
+                            }
+
+                            @for (int i = 0; i < (5 - (int)book.Rating - ((book.Rating - (int)book.Rating >= 0.25 && book.Rating - (int)book.Rating < 0.75) ? 1 : 0)); i++)
+                            {
+                                <i class="far fa-star"></i>
+                            }
+                            (@book.RatingCount)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Card End -->
+
+
+<!-- View Details Start-->
+
+<Modal @ref="viewmodal" Title="ContactUs Detail" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.ExtraLarge">
+    <BodyTemplate>
+        <div class="container py-5">
+            <div class="row g-4 align-items-start">
+                <!-- Book Cover -->
+                <div class="col-lg-4 text-center card-hover">
+                    <img src="@details.CoverUrl" alt="Book Cover"
+                    class="img-fluid rounded shadow-sm"
+                    style="max-height: 450px; object-fit: cover;" />
+                </div>
+
+                <!-- Book Info -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm p-4">
+
+                        <h1 class="fw-bold">@details.Title</h1>
+                        <h5 class="text-muted mb-3"><strong>Author: </strong>  @details.Author</h5>
+                        <div class="mb-2"><strong>ISBN: </strong> @details.ISBN</div>
+                        <div class="mb-2"><strong>Genre: </strong> @details.Genre</div>
+
+                        <!-- Rating -->
+                        <div class="text-yellow-500" style="color: gold;">
+                            @for (int i = 0; i < (int)details.Rating; i++)
+                            {
+                                <i class="fas fa-star"></i>
+                            }
+
+                            @if (details.Rating - (int)details.Rating >= 0.25 && details.Rating - (int)details.Rating < 0.75)
+                            {
+                                <i class="fas fa-star-half-alt"></i>
+                            }
+
+                            @for (int i = 0; i < (5 - (int)details.Rating - ((details.Rating - (int)details.Rating >= 0.25 && details.Rating - (int)details.Rating < 0.75) ? 1 : 0)); i++)
+                            {
+                                <i class="far fa-star"></i>
+                            }
+                            (@details.RatingCount)
+                        </div>
+                    </div>
+
+
+                    <div class="mb-3 mt-1">
+                        <span class="badge bg-info-subtle text-primary me-2">
+                            <i class="bi bi-file-earmark-text"></i> @details.Pages pages
+                        </span>
+                        <span class="badge bg-secondary-subtle text-secondary me-2"><i class="bi bi-calendar"></i> @(details.PublishDate?.ToString("MMMM dd, yyyy") ?? "N/A")</span>
+                        <span class="badge bg-success-subtle text-success"><i class="bi bi-translate"></i> English</span>
+                    </div>
+                    <!-- Description -->
+                    <p class="text-muted">@details.Description</p>
+
+                </div>
+            </div>
+        </div>
+
+    </BodyTemplate>
+    <FooterTemplate>
+        <a @onclick="OnHideDetailsClick" class="btn btn-secondary " style="width: 47px; height: 40px">
+            <i class="bi bi-x-lg fs-5"></i>
+        </a>
+        |
+        <a @onclick="()=>OnUpdateClick(details.Id)" class="btn btn-outline-success" style="width: 47px; height: 40px">
+            <i class="bi bi-pencil-square fs-5"></i>
+        </a>
+        |
+        <a @onclick="()=>OnDeleteClick(details.Id)" class="btn btn-outline-danger" style="width: 47px; height: 40px">
+            <i class="bi bi-trash3 fs-5"></i>
+        </a>
+    </FooterTemplate>
+</Modal>
+
+<!-- View Details End -->
+
+<!-- Edit Details Start-->
+
+<Modal @ref="updatemodal" Title="Add Book Details" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.ExtraLarge">
+    <BodyTemplate>
+      
+            <EditForm Model="@details" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="container mt-2 mb-4 card shadow-lg p-5">
+                    <div class="row g-4 ">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label>Title</label>
+                                <InputText class="form-control" @bind-Value="details.Title" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Author</label>
+                                <InputText class="form-control" @bind-Value="details.Author" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Genre</label>
+                                <InputText class="form-control" @bind-Value="details.Genre" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>ISBN</label>
+                                <InputText class="form-control" @bind-Value="details.ISBN" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Publish Date</label>
+                                <InputDate class="form-control" @bind-Value="details.PublishDate" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Rating</label>
+                                <InputNumber class="form-control" @bind-Value="details.Rating" step="0.1" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Number Of Pages</label>
+                                <InputNumber class="form-control" @bind-Value="details.Pages" step="0.1" />
+                            </div>
+
+                            <div class="col-md-12">
+                                <label>Description</label>
+                                <InputTextArea class="form-control" @bind-Value="details.Description" rows="3" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>Cover URL</label>
+                                <InputText class="form-control" @bind-Value="details.CoverUrl" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label>PDF Link</label>
+                                <InputText class="form-control" @bind-Value="details.Link" />
+                            </div>
+                            <hr/>
+                            <div class="col-12 mt-3 text-end">
+                                <a @onclick="()=>OnHideUpdateClick(details.Id)" class="btn btn-secondary " style="width: 47px; height: 40px">
+                                    <i class="bi bi-x-lg fs-5"></i>
+                                </a>
+                                |
+                                <Button type="ButtonType.Submit" class="btn btn-outline-success" style="width: 47px; height: 40px">
+                                    <i class="bi bi-floppy fs-5"></i>
+                                </Button>
+                             </div>
+                        </div>
+                    </div>
+               
+                </div>
+                
+         </EditForm>
+           
+    </BodyTemplate>
+</Modal>
+
+<!-- Edit Details End -->
+
+
+<!-- Delete Message Start-->
+
+<Modal @ref="deletemodal" Title="Delete Record" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Regular">
+    <BodyTemplate>
+        <h5>
+            Are you sure you want to delete this record?
+        </h5>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="OnCancelDeleteClick">Cancel</Button>
+        <Button Color="ButtonColor.Danger" @onclick="()=>OnConfirmDeleteClick(details.Id)">Confirm</Button>
+    </FooterTemplate>
+</Modal>
+
+<!-- Delete Message End-->
+
+
+<!--Toaster Alert message Start-->
+
+<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" />
+
+<!--Toaster Alert message End-->
+
+
+@code {
+    List<ToastMessage> messages = new List<ToastMessage>();
+    private IEnumerable<Book> Books;
+    private Book details;
+    private int Count => Books?.Count() ?? 0;
+
+    protected override void OnInitialized()
+    {
+        Books = Db.Books.OrderByDescending(s=>s.Id).ToList();
+    }
+
+
+    <!-- View Record Start-->
+    private Modal viewmodal = default!;
+
+    private async Task OnShowDetailClick(int id)
+    {
+        details = Db.Books.FirstOrDefault(c => c.Id == id);
+        await viewmodal.ShowAsync();
+    }
+
+    private async Task OnHideDetailsClick()
+    {
+        await viewmodal.HideAsync();
+    }
+    <!-- View Record End-->
+
+    <!-- Delete Record Start-->
+    private Modal deletemodal = default!;
+
+    private async Task OnDeleteClick(int id)
+    {
+        await viewmodal.HideAsync();
+        details = Db.Books.FirstOrDefault(c => c.Id == id);
+        await deletemodal.ShowAsync();
+    }
+
+    private async Task OnCancelDeleteClick()
+    {
+
+        await deletemodal.HideAsync();
+        await viewmodal.ShowAsync();
+    }
+
+    private async Task OnConfirmDeleteClick(int id)
+    {
+
+        var item = Db.Books.FirstOrDefault(c => c.Id == id);
+        if (item != null)
+        {
+            Db.Books.Remove(item);
+            await Db.SaveChangesAsync();
+            Books = Db.Books.OrderByDescending(c => c.Id).ToList();
+            messages.Add(CreateDeleteMessage(ToastType.Danger));
+        }
+        await deletemodal.HideAsync();
+    }
+    <!-- Delete Record End-->
+
+    <!-- Delete Message Start-->
+    private ToastMessage CreateDeleteMessage(ToastType toastType)
+       => new ToastMessage
+           {
+               Type = toastType,
+               Title = "Message",
+               HelpText = $"{DateTime.Now}",
+               Message = $"Hello,The Record is Successfully Deleted. DateTime: {DateTime.Now}",
+           };
+    <!-- Delete Message End-->
+
+    <!-- Update Record Start-->
+    private Modal updatemodal = default!;
+
+    private async Task OnUpdateClick(int? id)
+    {
+        if(id.HasValue)
+        {
+            await viewmodal.HideAsync();
+            details = Db.Books.FirstOrDefault(c => c.Id == id);
+        }
+        else
+        {
+            details = new Book();
+        }
+        await updatemodal.ShowAsync();
+    }
+
+    private async Task OnHideUpdateClick(int id)
+    {
+        await updatemodal.HideAsync();
+        if(id>0)
+        {
+            await viewmodal.ShowAsync();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if(details.Id==0)
+        {
+            Db.Books.Add(details);
+        }
+        else
+        {
+            Db.Books.Update(details);
+        }
+        await Db.SaveChangesAsync();
+        Books = Db.Books.OrderByDescending(s => s.Id).ToList();
+        await updatemodal.HideAsync();
+        await viewmodal.ShowAsync();
+        messages.Add(CreateUpdateMessage(ToastType.Success));
+    }
+    <!-- Update Record Start-->
+
+    <!-- Update Message Start-->
+    private ToastMessage CreateUpdateMessage(ToastType toastType)
+       => new ToastMessage
+           {
+               Type = toastType,
+               Title = "Message",
+               HelpText = $"{DateTime.Now}",
+               Message = $"Hello,The Record is Successfully Saved. DateTime: {DateTime.Now}",
+           };
+    <!-- Update Message End-->
+
+}
+
+

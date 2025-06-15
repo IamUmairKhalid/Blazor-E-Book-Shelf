@@ -1,0 +1,125 @@
+﻿@page "/userdashboard"
+@layout UserLayout
+@inject AuthenticationStateProvider Auth
+@inject AppDbContext Db
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@attribute [Authorize]
+
+<div class="container mt-5 mb-5">
+    <!-- Centered Profile Image -->
+    <div class="row justify-content-center">
+        <div class="col-auto text-center">
+            <img src="/ProfileImages/@Users.ProfilePictureUrl" class="rounded-circle shadow" alt="@Users.UserName" width="200" height="200">
+        </div>
+    </div>
+
+    <!-- Dashboard Title -->
+    <div class="row mt-3 mb-4 justify-content-center">
+        <div class="col-auto text-center">
+            <h2 class="fw-bold">@Users.UserName</h2>
+        </div>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="row g-4 justify-content-center">
+        <!-- Last Seen Book -->
+        <!-- Continue Reading -->
+        @if (LastLog != null && LastLog.Book != null)
+        {
+            <div class="col-md-4">
+                <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
+                    <div class="card-body text-center">
+                        <i class="bi bi-book-half fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3">Continue Reading</h5>
+                        <p class="card-text">Resume from page @LastLog.LastSeenPage of "@LastLog.Book.Title"</p>
+                        <a href="/readbook/@LastLog.BookId" class="btn btn-outline-primary">Resume</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Favorite Books -->
+        <div class="col-md-4">
+            <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
+                <div class="card-body text-center">
+                    <i class="bi bi-heart-fill fs-1 text-danger"></i>
+                    <h5 class="card-title mt-3">Favorites</h5>
+                    <p class="card-text">You have @FavoriteCount favorite books</p>
+                    <a href="/favorites" class="btn btn-outline-danger">View Favorites</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading History -->
+        <div class="col-md-4">
+            <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock-history fs-1 text-secondary"></i>
+                    <h5 class="card-title mt-3">Reading History</h5>
+                    <p class="card-text">@HistoryCount books read in the last 7 days</p>
+                    <a href="/history" class="btn btn-outline-secondary">View History</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saved Books / My Collection -->
+        <div class="col-md-4">
+            <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
+                <div class="card-body text-center">
+                    <i class="bi bi-bookmark-star fs-1 text-warning"></i>
+                    <h5 class="card-title mt-3">My Collection</h5>
+                    <p class="card-text">You have @CollectionCount saved books</p>
+                    <a href="/collection" class="btn btn-outline-warning">View Collection</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Settings -->
+        <div class="col-md-4">
+            <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-circle fs-1 text-info"></i>
+                    <h5 class="card-title mt-3">Profile</h5>
+                    <p class="card-text">Update your personal information</p>
+                    <a href="/userprofile" class="btn btn-outline-info">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    public int Id { get; set; }
+    private Users Users { get; set; }
+    private BooksLogs? LastLog { get; set; }
+    private int FavoriteCount { get; set; }
+    private int HistoryCount { get; set; }
+    private int CollectionCount { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await Auth.GetAuthenticationStateAsync()).User;
+        Id = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        Users = Db.Users.FirstOrDefault(c => c.Id == Id)!;
+
+        LastLog = await Db.BooksLogs
+       .Where(log => log.UserId == Id && log.Status == "Reading")
+       .Include(log => log.Book)
+       .OrderByDescending(log => log.UpdatedAt)
+       .FirstOrDefaultAsync();
+
+        FavoriteCount = Db.BooksLogs.Count(log => log.UserId == Id && log.Favorite);
+
+
+        CollectionCount = Db.BooksLogs.Count(log => log.UserId == Id);
+
+
+        HistoryCount = Db.BooksLogs
+            .Where(log => log.UserId == Id && log.UpdatedAt.HasValue && log.UpdatedAt >= DateTime.Now.AddDays(-7))
+            .Count();
+    }
+}

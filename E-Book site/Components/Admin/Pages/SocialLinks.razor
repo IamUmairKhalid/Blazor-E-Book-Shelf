@@ -1,0 +1,278 @@
+﻿@page "/Admin/social"
+@layout AdminLayout
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Social</PageTitle>
+
+<div class="row  justify-content-center ">
+
+    <div class="col-md-10 justify-content-center">
+        <h2>
+            Social Records
+        </h2>
+        <Button @onclick="() => OnUpdateClick(null)" class="btn btn-outline-primary" style="height: 40px">
+            <i class="bi bi-file-earmark-plus fs-5"></i><span class="fs-5">Add Record</span>
+        </Button>
+        <hr />
+        <table border="1" class="table mt-3 table-hover ">
+            <thead class="custom-header">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">FaceBook</th>
+                    <th scope="col">Instagram</th>
+                    <th scope="col">Linkedin</th>
+                    <th scope="col">Twitter/X</th>
+                </tr>
+            </thead>
+            <tbody>
+                    <tr style="cursor:pointer" @onclick="OnShowDetailClick">
+                    <td>@socials?.Id</td>
+                        <td>
+                        <span class="short-text">@(socials?.FB.Length > 10 ? socials?.FB.Substring(0, 10) + "..." : socials?.FB)</span>
+                        </td>
+                        <td>
+                        <span class="short-text">@(socials?.Insta.Length > 10 ? socials?.Insta.Substring(0, 10) + "..." : socials?.Insta)</span>
+                        </td>
+                        <td>
+                        <span class="short-text">@(socials?.LinkD.Length > 20 ? socials?.LinkD.Substring(0, 20) + "..." : socials?.LinkD)</span>
+                        </td>
+                        <td>
+                        <span class="short-text">@(socials?.X.Length > 20 ? socials?.X.Substring(0, 20) + "..." : socials?.X)</span>
+                        </td>
+                    </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+
+<!-- View Message -->
+
+<Modal @ref="viewmodal" Title="Social Details" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Large">
+    <BodyTemplate>
+        <dl class="row justify-content-center">
+            <dt class="col-sm-2">ID: </dt>
+            <dd class="col-sm-10"> @details.Id</dd>
+
+            <dt class="col-sm-2">Name: </dt>
+            <dd class="col-sm-10"> @details.FB</dd>
+
+            <dt class="col-sm-2">Email: </dt>
+            <dd class="col-sm-10">@details.Insta</dd>
+
+            <dt class="col-sm-2">Subject: </dt>
+            <dd class="col-sm-10"> @details.LinkD</dd>
+
+            <dt class="col-sm-2">Message: </dt>
+            <dd class="col-sm-10"> @details.X</dd>
+        </dl>
+    </BodyTemplate>
+    <FooterTemplate>
+        <a @onclick="OnHideDetailsClick" class="btn btn-secondary " style="width: 47px; height: 40px">
+            <i class="bi bi-x-lg fs-5"></i>
+        </a>
+        |
+        <a @onclick="() => OnUpdateClick(details.Id)" class="btn btn-outline-success" style="width: 47px; height: 40px">
+            <i class="bi bi-pencil-square fs-5"></i>
+        </a>
+        |
+        <a @onclick="() => OnDeleteClick()" class="btn btn-outline-danger" style="width: 47px; height: 40px">
+            <i class="bi bi-trash3 fs-5"></i>
+        </a>
+    </FooterTemplate>
+</Modal>
+
+
+
+
+<!-- Delete Message -->
+
+<Modal @ref="deletemodal" Title="Delete Record" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Regular">
+    <BodyTemplate>
+        <h6>
+            Are you sure you want to delete this record?
+        </h6>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="OnCancelDeleteClick">Cancel</Button>
+        <Button Color="ButtonColor.Danger" @onclick="() => OnConfirmDeleteClick()">Confirm</Button>
+    </FooterTemplate>
+</Modal>
+
+<!-- Edit Details Start-->
+
+<Modal @ref="updatemodal" Title="Add Record" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.ExtraLarge">
+    <BodyTemplate>
+
+        <EditForm Model="@details" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="container mt-2 mb-4 card shadow-lg p-5">
+                <div class="row g-4 ">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label>FaceBook</label>
+                            <InputText class="form-control" @bind-Value="details.FB" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Instagram</label>
+                            <InputText class="form-control" @bind-Value="details.Insta" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Linkedin</label>
+                            <InputText class="form-control" @bind-Value="details.LinkD" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Twitter/X</label>
+                            <InputText class="form-control" @bind-Value="details.X" />
+                        </div>
+
+                        <hr />
+                        <div class="col-12 mt-3 text-end">
+                            <a @onclick="() => OnHideUpdateClick(details.Id)" class="btn btn-secondary " style="width: 47px; height: 40px">
+                                <i class="bi bi-x-lg fs-5"></i>
+                            </a>
+                            |
+                            <Button type="ButtonType.Submit" class="btn btn-outline-success" style="width: 47px; height: 40px">
+                                <i class="bi bi-floppy fs-5"></i>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </EditForm>
+
+    </BodyTemplate>
+</Modal>
+
+<!-- Edit Details End -->
+
+<!--Toaster Alert message-->
+<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" />
+
+
+
+
+@code {
+    List<ToastMessage> messages = new List<ToastMessage>();
+    private Social? socials { get; set; }
+    private Social? details { get; set; }
+
+    protected override void OnInitialized()
+    {
+
+        socials = Db.Social.FirstOrDefault();
+
+    }
+
+    <!-- View Record Modal-->
+    private Modal viewmodal = default!;
+
+    private async Task OnShowDetailClick()
+    {
+        details = Db.Social.FirstOrDefault();
+        await viewmodal.ShowAsync();
+    }
+
+    private async Task OnHideDetailsClick()
+    {
+        await viewmodal.HideAsync();
+    }
+
+    <!-- Delete Record Modal-->
+    private Modal deletemodal = default!;
+
+    private async Task OnDeleteClick()
+    {
+        await viewmodal.HideAsync();
+        details = Db.Social.FirstOrDefault();
+        await deletemodal.ShowAsync();
+    }
+
+    private async Task OnCancelDeleteClick()
+    {
+
+        await deletemodal.HideAsync();
+    }
+
+    private async Task OnConfirmDeleteClick()
+    {
+        Db.Social.Remove(details);
+        await Db.SaveChangesAsync();
+        socials = Db.Social.FirstOrDefault();
+        messages.Add(CreateToastMessage(ToastType.Danger));
+
+        await deletemodal.HideAsync();
+    }
+
+    <!-- Delete Message -->
+    private ToastMessage CreateToastMessage(ToastType toastType)
+       => new ToastMessage
+       {
+           Type = toastType,
+           Title = "Message",
+           HelpText = $"{DateTime.Now}",
+           Message = $"Hello,The Record is Successfully Deleted. DateTime: {DateTime.Now}",
+       };
+
+    <!-- Update Record Start-->
+    private Modal updatemodal = default!;
+
+    private async Task OnUpdateClick(int? id)
+    {
+        if (id.HasValue)
+        {
+            await viewmodal.HideAsync();
+        }
+        else
+        {
+            details = new Social();
+        }
+        await updatemodal.ShowAsync();
+    }
+
+    private async Task OnHideUpdateClick(int id)
+    {
+        await updatemodal.HideAsync();
+        if (id > 0)
+        {
+            await viewmodal.ShowAsync();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (details.Id == 0)
+        {
+            Db.Social.Add(details);
+        }
+        else
+        {
+            Db.Social.Update(details);
+        }
+        await Db.SaveChangesAsync();
+        socials = Db.Social.FirstOrDefault();
+        await updatemodal.HideAsync();
+        await viewmodal.ShowAsync();
+        messages.Add(CreateUpdateMessage(ToastType.Success));
+    }
+    <!-- Update Record Start-->
+    <!-- Update Message Start-->
+    private ToastMessage CreateUpdateMessage(ToastType toastType)
+       => new ToastMessage
+       {
+           Type = toastType,
+           Title = "Message",
+           HelpText = $"{DateTime.Now}",
+           Message = $"Hello,The Record is Successfully Saved. DateTime: {DateTime.Now}",
+       };
+    <!-- Update Message End-->
+}

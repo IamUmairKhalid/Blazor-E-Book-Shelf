@@ -1,0 +1,74 @@
+﻿@page "/about"
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>About Us</PageTitle>
+
+<div class="container my-5">
+    <!-- Hero Section -->
+    <div class="text-center mb-5 ">
+        <h2 class="display-4">About Us</h2>
+        <p class="lead ">Meet the creators of your next favorite online book reading experience.</p>
+    </div>
+
+    <!-- Team Section -->
+    <div class="row justify-content-center mb-5">
+       @foreach(var item in Team)
+        {
+            <div class="col-md-5 text-center ">
+                <img src="/ProfileImages/@item.Users.ProfilePictureUrl" class="rounded-circle shadow mb-3" alt="Umair Khalid" width="180" height="180">
+                <h3>@item.Users.UserName</h3>
+                <p class="text-muted">@item.Users.Designation</p>
+                <p>
+                    @item.Users.Bio
+                </p>
+            </div>
+        }
+    </div>
+
+    <!-- Mission & Vision Section -->
+    <div class="container my-5">
+        <div class="row justify-content-center text-center">
+            <!-- Mission -->
+            <div class="col-md-10 mb-4">
+                <div class="border-0 shadow-sm rounded-4 p-4">
+                    <div class="card-body">
+                        <h2 class=" text-primary mb-3">Our Mission</h2>
+                        <p class="card-text ">
+                            @aboutUs.Mission
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vision -->
+            <div class="col-md-10">
+                <div class="border-0 shadow-sm rounded-4 p-4">
+                    <div class="card-body">
+                        <h2 class=" text-success mb-3">Our Vision</h2>
+                        <p class="card-text ">
+                            @aboutUs.Vision
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Call to Action -->
+    <div class="text-center mt-5 ">
+        <a class="btn hover-in btn-md px-4 text-light" style="background-color: #FF6F3C" href="contactus">Get in Touch</a>
+    </div>
+</div>
+
+@code{
+    private Model.AboutUs? aboutUs;
+    private IEnumerable<AboutTeamMember>? Team;
+    private Model.Users user;
+    protected override void OnInitialized()
+    {
+        aboutUs = Db.AboutUs.FirstOrDefault();
+        Team = Db.AboutTeam.Include(t=>t.Users).ToList();
+    }
+
+}

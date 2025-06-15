@@ -1,0 +1,179 @@
+﻿@page "/userbookdetail/{BookId:int}"
+@layout UserLayout
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+
+@inject AuthenticationStateProvider Auth
+
+<PageTitle>Book Details</PageTitle>
+
+@if (Book == null)
+{
+    <div class="text-center mt-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Loading book details...</p>
+    </div>
+}
+else
+{
+    <div class="container py-5">
+        <div class="row g-4 align-items-start">
+            <!-- Book Cover -->
+            <div class="col-lg-4 text-center card-hover">
+                <img src="@Book.CoverUrl" alt="Book Cover"
+                     class="img-fluid rounded shadow-sm"
+                     style="max-height: 450px; object-fit: cover;" />
+            </div>
+
+            <!-- Book Info -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm p-4">
+
+                    <h1 class="fw-bold">@Book.Title</h1>
+                    <h5 class="text-muted mb-3"><strong>Author: </strong> @Book.Author</h5>
+                    <div class="mb-2"><strong>ISBN: </strong> @Book.ISBN</div>
+                    <div class="mb-2"><strong>Genre: </strong> @Book.Genre</div>
+
+                    <!-- Rating -->
+                    @if (!IsLoaded)
+                    {
+                        <p>Loading rating...</p>
+                    }
+                    else
+                    {
+                        <div style="color: gold;">
+                            @for (int i = 0; i < FullStars; i++)
+                            {
+                                <i class="fas fa-star"></i>
+                            }
+
+                            @if (HasHalfStar)
+                            {
+                                <i class="fas fa-star-half-alt"></i>
+                            }
+
+                            @for (int i = 0; i < EmptyStars; i++)
+                            {
+                                <i class="far fa-star"></i>
+                            }
+                            (@Book.RatingCount)
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <span class="badge bg-info-subtle text-primary me-2">
+                            <i class="bi bi-file-earmark-text"></i> @Book.Pages pages
+                        </span>
+                        <span class="badge bg-secondary-subtle text-secondary me-2">
+                            <i class="bi bi-calendar"></i> @(Book.PublishDate?.ToString("MMMM dd, yyyy") ?? "N/A")
+                        </span>
+                        <span class="badge bg-success-subtle text-success">
+                            <i class="bi bi-translate"></i> English
+                        </span>
+                    </div>
+
+                    <!-- Description -->
+                    <p class="text-muted">@Book.Description</p>
+
+                    <!-- Buttons -->
+                    <div class="mt-4 d-flex gap-3 flex-wrap">
+                        <button class="btn hover-in text-light btn-md px-4" style="background-color: #FF6F3C" @onclick="ReadNow">
+                            <i class="bi bi-book me-2"></i>Read Now
+                        </button>
+                        <button class="btn hover-in btn-outline-secondary btn-md px-2" @onclick="AddToLibraryAsync">
+                            <i class="bi bi-bookmark-plus me-2"></i>Add to Library
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Toaster Alert -->
+<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" />
+
+@code {
+    [Parameter] public int BookId { get; set; }
+    private Book? Book;
+    private double Rating;
+    private bool IsLoaded = false;
+    private List<ToastMessage> messages = new();
+
+    private int FullStars => (int)Rating;
+    private bool HasHalfStar => Rating - FullStars >= 0.25 && Rating - FullStars < 0.75;
+    private int EmptyStars => 5 - FullStars - (HasHalfStar ? 1 : 0);
+
+    protected override async Task OnInitializedAsync()
+    {
+        Book = await Db.Books.FindAsync(BookId);
+
+        if (Book != null)
+        {
+            Rating = Book.Rating;
+            IsLoaded = true;
+        }
+    }
+
+    private void ReadNow()
+    {
+        NavigationManager.NavigateTo($"/readbook/{BookId}", true);
+    }
+
+    private async Task AddToLibraryAsync()
+    {
+        var authState = await Auth.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (!user.Identity?.IsAuthenticated ?? true)
+        {
+            NavigationManager.NavigateTo("/signin");
+            return;
+        }
+
+        var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+        // Check if already exists
+        var exists = await Db.BooksLogs
+            .AnyAsync(l => l.UserId == userId && l.BookId == BookId);
+
+        if (!exists)
+        {
+            Db.BooksLogs.Add(new BooksLogs
+            {
+                UserId = userId,
+                BookId = BookId,
+                ISBN = Book?.ISBN ?? "",
+                LastSeenPage = 1,
+                Favorite = false,
+                Status = "NotOpend",
+                UpdatedAt = DateTime.Now
+            });
+            await Db.SaveChangesAsync();
+
+            messages.Add(AddMessage(ToastType.Success));
+        }
+        else
+        {
+            messages.Add(ExistMessage(ToastType.Info));
+        }
+    }
+
+    private ToastMessage AddMessage(ToastType toastType) => new ToastMessage
+    {
+        Type = toastType,
+        Title = "Library Updated",
+        HelpText = $"{DateTime.Now}",
+        Message = "The book was successfully added to your library."
+    };
+
+    private ToastMessage ExistMessage(ToastType toastType) => new ToastMessage
+    {
+        Type = toastType,
+        Title = "Already Exists",
+        HelpText = $"{DateTime.Now}",
+        Message = "This book is already in your library."
+    };
+}
