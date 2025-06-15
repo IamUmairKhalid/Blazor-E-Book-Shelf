@@ -1,0 +1,88 @@
+﻿window.initializeChatBot = function () {
+    const chatMessages = document.getElementById("chatMessages");
+    const userInput = document.getElementById("userInput");
+    const API_KEY = "AIzaSyBlPEvkmuYpvRtVO6QrdGP7rO2m1hSrJg8"; // Replace with actual key
+
+    function appendMessage(sender, text) {
+        const message = document.createElement("div");
+        message.className = `message ${sender}`;
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = sender === "user" ? "🧑‍🎓" : "🤖";
+
+        const textEl = document.createElement("div");
+        textEl.className = "text";
+
+        if (sender === "bot") {
+            textEl.innerHTML = marked.parse(text);
+        } else {
+            textEl.textContent = text;
+        }
+
+        message.appendChild(avatar);
+        message.appendChild(textEl);
+        chatMessages.appendChild(message);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const typing = document.createElement("div");
+        typing.className = "typing-indicator";
+        typing.id = "typing";
+        typing.textContent = "Bot is typing ✍️...";
+        chatMessages.appendChild(typing);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typing = document.getElementById("typing");
+        if (typing) typing.remove();
+    }
+
+    async function sendMessage() {
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        appendMessage("user", message);
+        userInput.value = "";
+        showTypingIndicator();
+
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: message }] }]
+                })
+            });
+
+            const data = await res.json();
+            removeTypingIndicator();
+
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "⚠️ No response.";
+            appendMessage("bot", reply);
+        } catch (error) {
+            removeTypingIndicator();
+            appendMessage("bot", "❌ Error fetching response.");
+            console.error(error);
+        }
+    }
+
+    userInput?.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    window.sendMessage = sendMessage; // expose to global so onclick works
+
+    window.toggleChat = function () {
+        const popup = document.getElementById("chatPopup");
+        popup.style.display = popup.style.display === "block" ? "none" : "block";
+    };
+
+    window.hideChat = function () {
+        document.getElementById("chatPopup").style.display = "none";
+    };
+
+    appendMessage("bot", "Hello! 💬 Need help with anything you’re reading? Ask me for explanations — anytime! 😊");
+};
