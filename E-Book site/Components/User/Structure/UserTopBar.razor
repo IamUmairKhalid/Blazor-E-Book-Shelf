@@ -15,8 +15,10 @@
 <!-- Topbar Start -->
 <nav class="navbar navbar-expand-lg sticky-top border-3 shadow-sm p-0" style="background-color:#FAF9F6;">
     <!-- Brand -->
-    <a href="userpanel" class="navbar-brand d-flex align-items-center px-4 py-2" style="font-family: 'Merriweather', serif;">
-        <h1 class="m-0 fw-bold" style="color:#1B263B;">E-Book Shelf 📚</h1>
+    <a href="/" class="navbar-brand d-flex align-items-center px-4 py-2" style="font-family: 'Merriweather', serif;">
+        <h1 class="m-0 fw-bold" style="color:#1B263B;">E-Book Shelf
+            <img src="E_Book_Site.png" alt="Logo" style="height: 7vw; max-height: 45px; width: auto; object-fit: contain; margin-top: -6px;" />
+        </h1>
     </a>
 
     <!-- Toggler -->
@@ -28,12 +30,12 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav ms-auto px-4 py-2 py-lg-0" style="font-family: 'Open Sans', sans-serif; font-weight: 600; color: #555555;">
             <li class="nav-item">
-                <a class="nav-link btn active hover-in" href="userpanel">Home</a>
+                <a class="nav-link btn active hover-in" href="userdashboard">Dashboard</a>
             </li>
         </ul>
 
         <!-- CTA Button -->
-        <div class="d-none d-lg-block pe-3 ">
+        <div class="d-lg-block pe-3 ">
             <button class="hover-in btn py-2 px-4 text-light" style="background-color:#FF6F3C; font-weight:700; font-family: 'Open Sans', sans-serif;" @onclick="ShowLogoutModal">
                 Sign Out
             </button>
@@ -60,10 +62,6 @@
     private async Task ConfirmLogout()
     {
         await signoutModal.HideAsync();
-
-        // TODO: Add your logout logic here (clear auth tokens, sign out, etc.)
-        // optional UX delay
-
-        NavigationManager.NavigateTo("/signout");
+        NavigationManager.NavigateTo("/signout", forceLoad: true);
     }
 }

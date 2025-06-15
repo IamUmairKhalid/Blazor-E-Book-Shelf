@@ -15,95 +15,94 @@
                     <div class="circle-icon me-3">
                         <i class="bi bi-geo-alt-fill"></i>
                     </div>
-                    <span><strong>Address<br /></strong> House 40B, Street 30, F8/1, Islamabad</span>
+                    <span><strong>Address<br /></strong>@aboutUs.Address</span>
                 </li>
                 <li class="mb-4 d-flex align-items-center">
                     <div class="circle-icon me-3">
                         <i class="bi bi-envelope-fill"></i>
                     </div>
-                    <span><strong>Email<br /></strong> itsumairkhalid@gmail.com</span>
+                    <span><strong>Email<br /></strong> @aboutUs.Email</span>
                 </li>
                 <li class="mb-4 d-flex align-items-center">
                     <div class="circle-icon me-3">
                         <i class="bi bi-telephone-fill"></i>
                     </div>
-                    <span><strong>Phone<br /></strong> +92 319 3708558</span>
+                    <span><strong>Phone<br /></strong>@aboutUs.Phone</span>
                 </li>
             </ul>
         </div>
 
         <!-- Right: Contact Form -->
         <div class="col-md-7 ">
-            <EditForm Model="@contactModel" OnValidSubmit="@HandleSubmit">
+            <EditForm Model="@contact" OnValidSubmit="@HandleSubmit">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
                 <div class="row g-3">
                     <div class="mb-3 col-md-6">
                         <label class="form-label">Full Name</label>
-                        <InputText class="form-control" @bind-Value="contactModel.Name" />
-                        <ValidationMessage For="@(() => contactModel.Name)" />
+                        <InputText class="form-control" @bind-Value="contact.Name" />
+                        <ValidationMessage For="@(() => contact.Name)" />
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Email Address</label>
-                        <InputText type="email" class="form-control" @bind-Value="contactModel.Email" />
-                        <ValidationMessage For="@(() => contactModel.Email)" />
+                        <InputText type="email" class="form-control" @bind-Value="contact.Email" />
+                        <ValidationMessage For="@(() => contact.Email)" />
                     </div>
 
                     <div class="mb-3 col-md-12">
                         <label class="form-label">Subject</label>
-                        <InputText class="form-control" @bind-Value="contactModel.Subject" />
-                        <ValidationMessage For="@(() => contactModel.Subject)" />
+                        <InputText class="form-control" @bind-Value="contact.Subject" />
+                        <ValidationMessage For="@(() => contact.Subject)" />
                     </div>
 
                     <div class="mb-3 col-md-12">
                         <label class="form-label">Message</label>
-                        <InputTextArea class="form-control" @bind-Value="contactModel.Message" Rows="5" />
-                        <ValidationMessage For="@(() => contactModel.Message)" />
+                        <InputTextArea class="form-control" @bind-Value="contact.Message" Rows="5" />
+                        <ValidationMessage For="@(() => contact.Message)" />
                     </div>
                 </div>
-                <button class="btn btn-primary w-100" type="submit">Send Message</button>
+                <Button class="btn btn-primary w-100" @onclick=HandleSubmit>Send Message</Button>
             </EditForm>
-            @if (isSubmitted)
-            {
-                <div class="alert alert-success mt-3 text-center">
-                    Message sent successfully!
-                </div>
-            }
         </div>
     </div>
 </div>
 
+<!--Toaster Alert message-->
+<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" />
+
 
 @code {
-    private ContactFormModel contactModel = new();
-    private bool isSubmitted = false;
+    List<ToastMessage> messages = new List<ToastMessage>();
+    private Model.ContactUs contact = new();
+    private Model.AboutUs? aboutUs;
+
+    protected override void OnInitialized()
+    {
+        // Initialize any necessary data or services here
+        aboutUs = Db.AboutUs.FirstOrDefault();
+
+    }
 
     private void HandleSubmit()
     {
-        isSubmitted = true;
-
-        // TODO: Process form (e.g., send email, save to DB)
-        Console.WriteLine($"Contact: {contactModel.Name}, {contactModel.Email}, {contactModel.Subject}, {contactModel.Message}");
-
-        // Optionally reset the form
-        contactModel = new();
+        messages.Add(CreateToastMessage(ToastType.Success));
+        Db.ContactUs.Add(contact);
+        Db.SaveChanges();
+       
+        contact = new();
+        
     }
 
-    public class ContactFormModel
-    {
-        [Required]
-        public string Name { get; set; } = "";
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = "";
-
-        [Required]
-        public string Subject { get; set; } = "";
-
-        [Required]
-        public string Message { get; set; } = "";
-    }
+    <!-- Successful Message -->
+    private ToastMessage CreateToastMessage(ToastType toastType)
+       => new ToastMessage
+           {
+               Type = toastType,
+               Title = "Message",
+               HelpText = $"{DateTime.Now}",
+               Message = $"Hello,The Message is Successfully Sended. DateTime: {DateTime.Now}",
+           };
 }

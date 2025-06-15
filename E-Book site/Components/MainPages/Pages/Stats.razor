@@ -38,11 +38,15 @@
     </div>
 </div>
 <!-- /Stats Section -->
+
 @code {
-    private readonly int totalUsers = 150;
-    private readonly int totalBooks = 320;
-    private readonly int totalReads = 120;
-    private readonly int activeReaders = 35;
+    private IEnumerable<Users> Users;
+    private IEnumerable<Book> Books; 
+
+    private int totalUsers ;
+    private int totalBooks ;
+    private int totalReads ;
+    private int activeReaders ;
 
     private int animatedUsers;
     private int animatedBooks;
@@ -53,25 +57,22 @@
 
     protected override void OnInitialized()
     {
+        totalUsers = Db.Users.Count();
+        totalBooks = Db.Books.Count();
+
+
         timer = new System.Timers.Timer(40);
         timer.Elapsed += (s, e) => InvokeAsync(UpdateCounters);
         timer.Start();
     }
 
-    private async Task UpdateCounters()
+    private void UpdateCounters()
     {
         bool stillRunning = false;
-<<<<<<<< Updated upstream:E-Book site/Components/Features/Stats.razor
 
         if (animatedUsers < totalUsers) { animatedUsers+= 2; stillRunning = true; }
-        if (animatedBooks < totalBooks) { animatedBooks += 4; stillRunning = true; }
+        if (animatedBooks < totalBooks) { animatedBooks += 2; stillRunning = true; }
         if (animatedReads < totalReads) { animatedReads += 2; stillRunning = true; }
-========
-        
-        if (animatedUsers < totalUsers) { animatedUsers+= 1; stillRunning = true; }
-        if (animatedBooks < totalBooks) { animatedBooks += 1; stillRunning = true; }
-        if (animatedReads < totalReads) { animatedReads += 1; stillRunning = true; }
->>>>>>>> Stashed changes:E-Book site/Components/MainPages/Pages/Stats.razor
         if (animatedActiveReaders < activeReaders) { animatedActiveReaders++; stillRunning = true; }
 
         if (!stillRunning)

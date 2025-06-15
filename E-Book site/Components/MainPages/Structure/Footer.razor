@@ -1,5 +1,4 @@
-﻿
-<!-- Footer Start -->
+﻿<!-- Footer Start -->
 <footer style="background-color:#1B263B; color:#FAF9F6; font-family: 'Open Sans', sans-serif; padding: 2rem 1rem;">
     <div class="container">
         <div class="row align-items-center text-center text-md-start mb-3">
@@ -13,16 +12,16 @@
 
             <!-- Center: Social Media Links -->
             <div class="col-md-4 mb-3 mb-md-0 d-flex justify-content-center gap-4">
-                <a href="https://facebook.com" target="_blank" class="text-light hover-in">
+                <a href="@socials.FB" target="_blank" class="text-light hover-in">
                     <i class="bi bi-facebook fs-3 "></i>
                 </a>
-                <a href="https://twitter.com" target="_blank" class="text-light hover-in">
+                <a href="@socials.X" target="_blank" class="text-light hover-in">
                     <i class="bi bi-twitter-x fs-3 "></i>
                 </a>
-                <a href="https://linkedin.com" target="_blank" class="text-light hover-in">
+                <a href="@socials.LinkD" target="_blank" class="text-light hover-in">
                     <i class="bi bi-linkedin fs-3 "></i>
                 </a>
-                <a href="https://instagram.com" target="_blank" class="text-light hover-in">
+                <a href="@socials.Insta" target="_blank" class="text-light hover-in">
                     <i class="bi bi-instagram fs-3 "></i>
                 </a>
             </div>
@@ -50,14 +49,12 @@
 
 
 @code {
+    private Social? socials { get; set; }
 
-<<<<<<<< Updated upstream:E-Book site/Components/Features/Footer.razor
-========
-    protected override void  OnInitialized()
+    protected override void OnInitialized()
     {
 
-        socials =  Db.Social.FirstOrDefault();
+        socials = Db.Social.FirstOrDefault();
 
     }
->>>>>>>> Stashed changes:E-Book site/Components/MainPages/Structure/Footer.razor
 }

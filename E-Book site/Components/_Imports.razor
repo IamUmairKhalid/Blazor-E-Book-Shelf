@@ -7,14 +7,12 @@
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.JSInterop
+@using BlazorBootstrap;
 @using E_Book_site
 @using E_Book_site.Components
-@using BlazorBootstrap;
-@using E_Book_site.Components.Features
+@using E_Book_site.Components.Authentication
 @using E_Book_site.Components.Layout
 @using E_Book_site.Components.User
-<<<<<<< Updated upstream
-=======
 @using E_Book_site.Components.User.Pages
 @using E_Book_site.Components.User.Structure
 @using E_Book_site.Components.MainPages
@@ -26,6 +24,5 @@
 @using E_Book_site.Data
 @using E_Book_site.Model
 @using E_Book_site.Services
->>>>>>> Stashed changes
 @inject NavigationManager NavigationManager
-
+@inject AppDbContext Db

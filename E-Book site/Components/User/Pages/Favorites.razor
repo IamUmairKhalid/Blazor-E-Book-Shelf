@@ -8,28 +8,28 @@
 @using System.Security.Claims
 @attribute [Authorize]
 
-
-@if (FavoriteBooks == null)
-{
-    <p>Loading favorites...</p>
-}
-else if (!FavoriteBooks.Any())
-{
-    <p>No favorite books yet.</p>
-}
-else
-{
-    <div class="container mt-5 mb-5">
-        <h2 class="text-center mb-4" style="color: #000;"><b>Favorite Books!!!</b></h2>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+<div class="container mt-5 mb-5">
+    <h2 class="text-center mb-4" style="color: #000;"><b>Favorite Books!!!</b></h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @if (FavoriteBooks == null)
+        {
+            <p>Loading favorites...</p>
+        }
+        else if (!FavoriteBooks.Any())
+        {
+            <p>No favorite books yet.</p>
+        }
+        else
+        {
+          
             @foreach (var item in FavoriteBooks)
             {
-
+            
                 <div class="col">
                     <div class="card card-hover h-100 shadow-sm d-flex flex-column"
                          style="cursor:pointer"
                          @onclick="() => OpenBook(item.BookId)">
-
+            
                         <!-- Slightly smaller image container -->
                         <div class="overflow-hidden" style="height:320px;">
                             <img src="@item.Book.CoverUrl"
@@ -37,7 +37,7 @@ else
                                  class="w-100 h-100"
                                  style="object-fit: cover;">
                         </div>
-
+            
                         <!-- Book title and author -->
                         <div class="card-body text-center mt-auto">
                             <h5 class="card-title mb-1">@item.Book.Title</h5>
@@ -46,11 +46,11 @@ else
                     </div>
                 </div>
             }
-        </div>
+             
+        
+        }
     </div>
-
-}
-
+</div>
 @code {
     private List<BooksLogs>? FavoriteBooks;
 
