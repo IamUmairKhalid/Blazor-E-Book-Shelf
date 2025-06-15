@@ -1,0 +1,102 @@
+﻿@page "/Admin/AboutUsDetails"
+@using Microsoft.EntityFrameworkCore
+@layout AdminLayout
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<div class="row  justify-content-center ">
+
+    <div class="col-md-10 justify-content-center">
+        <h2>
+            AboutUS & Team Members
+        </h2>
+       @if (AboutUs == null&&AboutTeam==null)
+       {
+            <div class="alert alert-info">
+                No About Us information found.
+                <button class="btn btn-primary" @onclick="NavigateToAddEdit">Add About Us & Team Members</button>
+            </div>
+       }
+       else
+       {
+            <table border="1" class="table mt-3 table-hover ">
+                <thead class="custom-header">
+                    <tr>
+                        <th scope="col">Email</th>
+                        <th scope="col">ContactNo</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Mission</th>
+                        <th scope="col">Vision</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr @onclick="NavigateToAddEdit" style="cursor:pointer;">
+                        <td>
+                            <span class="short-text">@(AboutUs.Email.Length > 15 ? AboutUs.Email.Substring(0, 15) + "..." : AboutUs.Email)</span>
+                        </td>
+                        <td>
+                            <span class="short-text">@(AboutUs.Phone.Length > 13 ? AboutUs.Phone.Substring(0, 13) + "..." : AboutUs.Phone)</span>
+                        </td>
+                        <td>
+                            <span class="short-text">@(AboutUs.Address.Length > 15 ? AboutUs.Address.Substring(0, 15) + "..." : AboutUs.Address)</span>
+                        </td>
+                        <td>
+                            <span class="short-text">@(AboutUs.Mission.Length > 15 ? AboutUs.Mission.Substring(0, 15) + "..." : AboutUs.Mission)</span>
+                        </td>
+                        <td>
+                            <span class="short-text">@(AboutUs.Vision.Length > 15 ? AboutUs.Vision.Substring(0, 15) + "..." : AboutUs.Vision)</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table border="1" class="table table-hover ">
+                <thead >
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Designation</th>
+                        <th>Bio</th>
+                        <th>BirthDate</th>
+                        <th>RegisteredAt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in AboutTeam)
+                    {
+                        <tr @onclick="NavigateToAddEdit" style="cursor:pointer;">
+                            <td>@item.UserId</td>
+                            <td>@item.Users.UserName</td>
+                            <td>
+                                <span class="short-text">@(item.Users.Designation.Length > 20 ? item.Users.Designation.Substring(0, 20) + "..." : item.Users.Designation)</span>
+                            </td>
+                            <td>
+                                <span class="short-text">@(item.Users.Bio.Length > 20 ? item.Users.Bio.Substring(0, 20) + "..." : item.Users.Bio)</span>
+                            </td>
+                            <td>@item.Users.BirthDate</td>
+                            <td>@item.Users.CreatedAt</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+       }
+    </div>
+</div>
+
+@code{
+    List<ToastMessage> messages = new List<ToastMessage>();
+    private AboutUs? AboutUs;
+    private IEnumerable<AboutTeamMember>? AboutTeam;
+
+    protected override void OnInitialized()
+    {
+
+        AboutUs = Db.AboutUs.FirstOrDefault();
+        AboutTeam = Db.AboutTeam.Include(t => t.Users).ToList();
+    }
+
+    private void NavigateToAddEdit()
+    {
+        NavigationManager.NavigateTo("/Admin/ManageAboutUsDetails");
+    }
+}
