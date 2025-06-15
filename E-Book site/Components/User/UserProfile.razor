@@ -1,27 +1,9 @@
-<<<<<<< Updated upstream:E-Book site/Components/User/UserProfile.razor
 ﻿@page "/userprofile"
 @layout UserLayout
-=======
-﻿@layout UserLayout
-@page "/userprofile"
-@inject UserStateService UserState
-@rendermode InteractiveServer
-@using Microsoft.AspNetCore.Components.Authorization
-@using System.Security.Claims
-@inject AuthenticationStateProvider Auth
-@using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
->>>>>>> Stashed changes:E-Book site/Components/User/Pages/UserProfile.razor
 
 <PageTitle>User Profile</PageTitle>
 
-<<<<<<< Updated upstream:E-Book site/Components/User/UserProfile.razor
 <div class="container card mt-2 mb-2">
-=======
-<PageTitle>User Profile</PageTitle>
-<!--Profile-->
-<div class="container card mt-2 mb-4">
->>>>>>> Stashed changes:E-Book site/Components/User/Pages/UserProfile.razor
     <div class="row justify-content-center mt-5 mb-5">
 
         <div class="col-md-6">
@@ -36,11 +18,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Email</label>
-<<<<<<< Updated upstream:E-Book site/Components/User/UserProfile.razor
                     <InputText class="form-control" @bind-Value="userProfile.Email" />
-=======
-                    <InputText class="form-control" readonly @bind-Value="Users.Email" />
->>>>>>> Stashed changes:E-Book site/Components/User/Pages/UserProfile.razor
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Birthday</label>
@@ -79,7 +57,6 @@
 </div>
 
 @code {
-<<<<<<< Updated upstream:E-Book site/Components/User/UserProfile.razor
     private UserProfileModel userProfile = new();
 
     private async Task HandlePhotoUpload(InputFileChangeEventArgs e)
@@ -91,19 +68,6 @@
         var path = Path.Combine("wwwroot/images", file.Name);
         using var fs = new FileStream(path, FileMode.Create);
         await file.OpenReadStream().CopyToAsync(fs);
-=======
-    public int Id { get; set; }
-    List<ToastMessage> messages = new List<ToastMessage>();
-    private Users Users { get; set; }
-    private IBrowserFile? uploadedFile;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var user = (await Auth.GetAuthenticationStateAsync()).User;
-        Id = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        Users = Db.Users.Where(c => c.Id == Id).FirstOrDefault();
-
->>>>>>> Stashed changes:E-Book site/Components/User/Pages/UserProfile.razor
     }
 
     private void HandleValidSubmit()
@@ -113,7 +77,6 @@
 
     public class UserProfileModel
     {
-<<<<<<< Updated upstream:E-Book site/Components/User/UserProfile.razor
         public string Name { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
@@ -125,34 +88,5 @@
         public string Address { get; set; }
         public string DesOne { get; set; }
         public string DesTwo { get; set; }
-=======
-        if (uploadedFile != null)
-        {
-
-            var fileName = uploadedFile.Name;
-            string imageName = $"{Users.Id}_{Users.UserName}_{fileName}";
-
-
-            string old_image = Users.ProfilePictureUrl;
-            DeletePicture(old_image);
-
-            var FolderPath = Path.Combine(env.WebRootPath, "ProfileImages");
-            var ImagePath = Path.Combine(FolderPath, imageName);
-
-
-            await using var myFileStream = new FileStream(ImagePath, FileMode.Create);
-            await uploadedFile.OpenReadStream(5 * 1024 * 1024).CopyToAsync(myFileStream); // 5 MB limit
-            myFileStream.Close();
-
-            Users.ProfilePictureUrl = imageName;
-        }
-
-        Db.Users.Update(Users);
-        await Db.SaveChangesAsync();
-        messages.Add(CreateUpdateMessage(ToastType.Success));
-        uploadedFile = null;
-        UserState.SetUser(Users.Id, Users.UserName, $"/ProfileImages/{Users.ProfilePictureUrl}");
-
->>>>>>> Stashed changes:E-Book site/Components/User/Pages/UserProfile.razor
     }
 }

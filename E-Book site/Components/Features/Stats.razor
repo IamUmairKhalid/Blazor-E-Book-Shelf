@@ -1,5 +1,4 @@
-﻿@rendermode InteractiveServer
-<!-- Stats Section -->
+﻿<!-- Stats Section -->
 <div class="container my-5">
     <div class="row gy-4 text-center">
 
@@ -58,20 +57,13 @@
         timer.Start();
     }
 
-    private async Task UpdateCounters()
+    private void UpdateCounters()
     {
         bool stillRunning = false;
-<<<<<<<< Updated upstream:E-Book site/Components/Features/Stats.razor
 
         if (animatedUsers < totalUsers) { animatedUsers+= 2; stillRunning = true; }
         if (animatedBooks < totalBooks) { animatedBooks += 4; stillRunning = true; }
         if (animatedReads < totalReads) { animatedReads += 2; stillRunning = true; }
-========
-        
-        if (animatedUsers < totalUsers) { animatedUsers+= 1; stillRunning = true; }
-        if (animatedBooks < totalBooks) { animatedBooks += 1; stillRunning = true; }
-        if (animatedReads < totalReads) { animatedReads += 1; stillRunning = true; }
->>>>>>>> Stashed changes:E-Book site/Components/MainPages/Pages/Stats.razor
         if (animatedActiveReaders < activeReaders) { animatedActiveReaders++; stillRunning = true; }
 
         if (!stillRunning)
