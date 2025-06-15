@@ -1,0 +1,150 @@
+﻿@page "/Admin/ManageAboutUsDetails"
+@using Microsoft.EntityFrameworkCore
+@layout AdminLayout
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<div class="row g-3 justify-content-center ">
+    <div class="col-md-10 justify-content-center">
+        <h3>ManageAboutUsDetails</h3>
+        <hr />
+        <h5>Add New Team Member</h5>
+        <InputSelect class="form-control mt-2 mb-3" @bind-Value="SelectedUserId">
+            <option value="">-- Select User --</option>
+            @foreach (var user in AvailableUsers)
+            {
+                <option value="@user.Id">Id: @user.Id | Name: @user.UserName</option>
+            }
+        </InputSelect>
+        
+        <button class="btn mb-3 btn-outline-success" @onclick="AddTeamMember">Add Member</button>
+
+        <h4>Team Members</h4>
+        <table class="table" border="1">
+            <thead class="custom-header" style="position:revert!important">
+                <tr>
+                    <th>Name</th>
+                    <th>Designation</th>
+                    <th>Bio</th>
+                    <th>Birth Date</th>
+                    <th>RegisteredAt</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var member in TeamMembers)
+                {
+                    <tr>
+                        <td>@member.Users.UserName</td>
+                        <td>
+                             @member.Users.Designation
+                        </td>
+                        <td>
+                            @member.Users.Bio
+                        </td>
+                        <td>@member.Users.BirthDate</td>
+                        <td>@member.Users.CreatedAt</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => RemoveTeamMember(member)">Remove</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <hr />
+        <div class="container mt-2 mb-4 card shadow-lg p-5">
+             
+        <h4>About Us</h4>
+        <EditForm Model="@AboutUsModel" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+        <div class="row g-3 align-items-center">
+            <div class=" col-md-6">
+                <label>Email</label>
+                <InputText class="form-control" @bind-Value="AboutUsModel.Email" />
+            </div>
+        
+            <div class=" col-md-6">
+                <label>Phone</label>
+                <InputText class="form-control" @bind-Value="AboutUsModel.Phone" />
+            </div>
+        
+            <div class=" col-md-12">
+                <label>Address</label>
+                <InputText class="form-control" @bind-Value="AboutUsModel.Address" />
+            </div>
+        
+            <div class="col-md-12">
+                <label>Mission</label>
+                <InputTextArea class="form-control" @bind-Value="AboutUsModel.Mission" />
+            </div>
+        
+            <div class=" col-md-12">
+                <label>Vision</label>
+                <InputTextArea class="form-control" @bind-Value="AboutUsModel.Vision" />
+            </div>
+        
+            <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </EditForm>
+
+
+
+
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private AboutUs AboutUsModel = new();
+    private List<AboutTeamMember> TeamMembers = new();
+    private List<Users> AvailableUsers = new();
+    private int SelectedUserId;
+
+    protected override void OnInitialized()
+    {
+        AboutUsModel = Db.AboutUs.FirstOrDefault() ?? new AboutUs();
+        TeamMembers = Db.AboutTeam.Include(t => t.Users).ToList();
+        var existingIds = TeamMembers.Select(t => t.UserId).ToList();
+        AvailableUsers = Db.Users.Where(u => !existingIds.Contains(u.Id)).ToList();
+    }
+
+    private void HandleValidSubmit()
+    {
+        if (AboutUsModel.Id == 0)
+        {
+            Db.AboutUs.Add(AboutUsModel);
+        }
+        else
+        {
+            Db.AboutUs.Update(AboutUsModel);
+        }
+        Db.SaveChanges();
+        NavigationManager.NavigateTo("/Admin/AboutUsDetails");
+    }
+
+
+    private void AddTeamMember()
+    {
+        var user = Db.Users.Find(SelectedUserId);
+        if (user != null && !TeamMembers.Any(m => m.UserId == user.Id))
+        {
+            var newMember = new AboutTeamMember { UserId = user.Id, Users = user };
+            Db.AboutTeam.Add(newMember);
+            Db.SaveChanges();
+            TeamMembers.Add(newMember);
+            AvailableUsers.Remove(user);
+            SelectedUserId = 0;
+        }
+    }
+
+    private void RemoveTeamMember(AboutTeamMember member)
+    {
+        Db.AboutTeam.Remove(member);
+        Db.SaveChanges();
+        TeamMembers.Remove(member);
+        AvailableUsers.Add(member.Users);
+    }
+}

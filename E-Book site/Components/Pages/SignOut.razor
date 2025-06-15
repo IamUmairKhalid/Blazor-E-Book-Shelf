@@ -1,0 +1,17 @@
+﻿@page "/signout"
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@layout BlankLayout
+@rendermode InteractiveServer
+@inject IHttpContextAccessor HttpContextAccessor
+@inject UserStateService UserState
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await HttpContextAccessor.HttpContext!.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        UserState.ClearUser();
+        NavigationManager.NavigateTo("/", true);
+    }
+}

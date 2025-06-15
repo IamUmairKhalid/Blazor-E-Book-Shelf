@@ -1,0 +1,128 @@
+﻿@page "/SignIn/{returnUrl?}"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject IHttpContextAccessor HttpContextAccessor
+@layout BlankLayout
+<PageTitle>Sign In</PageTitle>
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="card shadow-lg p-4" style="width: 100%; max-width: 450px;">
+        <div class="card-body">
+            <h3 class="text-center mb-4">Sign In</h3>
+
+            <EditForm Model="Users" method="post" FormName="SignIn" OnValidSubmit="HandleSignInAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" />
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <InputText type="email" class="form-control" @bind-Value="Users.Email" />
+                    <ValidationMessage For="@(() => Users.Email)" class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <InputText type="password" class="form-control" @bind-Value="Users.Password" />
+                    <ValidationMessage For="@(() => Users.Password)" class="text-danger" />
+                </div>
+                @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+                {
+                    <div class="alert alert-danger text-center" role="alert">@ErrorMessage</div>
+                }
+                <button type="submit" class="btn btn-primary w-100">Sign In</button>
+            </EditForm>
+
+            <div class="mt-3 text-center">
+                <span>Don't have an account? </span>
+                <a href="signup">Create Account</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    [Parameter] public string? returnUrl { get; set; }
+    public string? ErrorMessage;
+
+    [SupplyParameterFromForm]
+    public SignInModel Users { get; set; } = new();
+
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = HttpContextAccessor.HttpContext?.User;
+
+        if (user?.Identity?.IsAuthenticated == true)
+        {
+            // Get the role claim
+            var role = user.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Redirect based on role
+
+            switch (role)
+            {
+                case "Admin":
+                    NavigationManager.NavigateTo("/Admin", true);
+                    break;
+                case "User":
+                    NavigationManager.NavigateTo("/userdashboard", true);
+                    break;
+                default:
+                    NavigationManager.NavigateTo("/", true);
+                    break;
+            }
+        }
+    }
+
+
+    private async Task HandleSignInAsync()
+    {
+        ErrorMessage = null; 
+
+
+        var validUser =  Db.Users.FirstOrDefault(u => u.Email == Users.Email && u.Password == Users.Password && u.Subscription==true);
+        if (validUser == null)
+        {
+            ErrorMessage = "Invalid Credentials or Access Revoked";
+            return; 
+        }
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Email, validUser.Email),
+            new Claim(ClaimTypes.Role, validUser.Role),
+            new Claim(ClaimTypes.NameIdentifier, validUser.Id.ToString())
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        if (HttpContext != null)
+        {
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        }
+        if (!string.IsNullOrEmpty(returnUrl))
+        {
+            NavigationManager.NavigateTo(returnUrl, true);
+            return;
+        }
+        switch (validUser.Role)
+        {
+            case "Admin":
+                NavigationManager.NavigateTo("/Admin", true);
+                break;
+            case "User":
+                NavigationManager.NavigateTo("/userdashboard", true);
+                break;
+            default:
+                NavigationManager.NavigateTo("/", true);
+                break;
+        }
+    }
+
+    
+}

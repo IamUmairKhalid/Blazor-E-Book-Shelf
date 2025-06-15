@@ -1,0 +1,142 @@
+﻿@layout AdminLayout
+@page "/Admin/adminprofile/{Id:int?}"
+@inject UserStateService UserState
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@inject IWebHostEnvironment env;
+
+<PageTitle>Admin Profile</PageTitle>
+<!--Profile-->
+<div class="container card mt-2 mb-4">
+    <div class="row justify-content-center mt-5 mb-5">
+        <div class="col-md-6">
+            <h1>Profile</h1>
+            <EditForm Model="@Users" OnValidSubmit="HandleValidSubmit" class="row g-3">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="col-md-6 ">
+                    <label class="form-label">Name</label>
+                    <InputText class="form-control" @bind-Value="Users.UserName" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <InputText class="form-control" readonly @bind-Value="Users.Email" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Birthday</label>
+                    <InputDate class="form-control" @bind-Value="Users.BirthDate" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Image Name</label>
+                    <InputText class="form-control" @bind-Value="Users.ProfilePictureUrl" readonly />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Designation</label>
+                    <InputText class="form-control" @bind-Value="Users.Designation" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Upload Photo</label>
+                    <InputFile OnChange="HandleFileSelected" class="form-control" />
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Address</label>
+                    <InputText class="form-control" @bind-Value="Users.Location" />
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Bio</label>
+                    <InputTextArea class="form-control" @bind-Value="Users.Bio" />
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary mt-3">SAVE</button>
+                </div>
+            </EditForm>
+        </div>
+        <div class="col-md-4 text-center mt-5">
+            <img src="/ProfileImages/@Users.ProfilePictureUrl" class="rounded-circle shadow" alt="@Users.UserName" width="300" height="300">
+        </div>
+    </div>
+</div>
+
+<!--Toaster Alert message-->
+<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" />
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    List<ToastMessage> messages = new List<ToastMessage>();
+    private Users Users { get; set; }
+    private IBrowserFile? uploadedFile;
+
+    protected override void OnInitialized()
+    {
+
+        Users = Db.Users.Where(c => c.Id == Id).FirstOrDefault();
+
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        uploadedFile = e.File;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (uploadedFile != null)
+        {
+
+            var fileName = uploadedFile.Name;
+            string imageName = $"{Users.Id}_{Users.UserName}_{fileName}";
+
+
+            string old_image = Users.ProfilePictureUrl;
+            DeletePicture(old_image);
+
+            var FolderPath = Path.Combine(env.WebRootPath, "ProfileImages");
+            var ImagePath = Path.Combine(FolderPath, imageName);
+
+
+            await using var myFileStream = new FileStream(ImagePath, FileMode.Create);
+            await uploadedFile.OpenReadStream(5 * 1024 * 1024).CopyToAsync(myFileStream); // 5 MB limit
+            myFileStream.Close();
+
+            Users.ProfilePictureUrl = imageName;
+        }
+
+        Db.Users.Update(Users);
+        await Db.SaveChangesAsync();
+        messages.Add(CreateUpdateMessage(ToastType.Success));
+        uploadedFile = null;
+        UserState.SetUser(Users.Id, Users.UserName, $"/ProfileImages/{Users.ProfilePictureUrl}");
+        NavigationManager.NavigateTo($"/Admin/adminprofile/{Users.Id}");
+
+
+    }
+
+        private void DeletePicture(string old_pic)
+    {
+        var FolderPath = Path.Combine(env.WebRootPath, "ProfileImages");
+        var ImagePath = Path.Combine(FolderPath, old_pic);
+
+            var flag = System.IO.File.Exists(ImagePath);
+
+            if (flag)
+        {
+            System.IO.File.Delete(ImagePath);
+        }
+    }
+
+
+    <!-- Update Message Start-->
+    private ToastMessage CreateUpdateMessage(ToastType toastType)
+       => new ToastMessage
+           {
+               Type = toastType,
+               Title = "Message",
+               HelpText = $"{DateTime.Now}",
+               Message = $"Hello,The Record is Successfully Saved. DateTime: {DateTime.Now}",
+           };
+    <!-- Update Message End-->
+}

@@ -17,4 +17,9 @@
     <Folder Include="wwwroot\lib\bootstrap\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Admin\Pages\" />
+    <Folder Include="Components\Admin\Structure\" />
+  </ItemGroup>
+
 </Project>
