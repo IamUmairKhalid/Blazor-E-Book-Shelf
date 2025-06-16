@@ -62,7 +62,7 @@
 
 <!-- View Details Start-->
 
-<Modal @ref="viewmodal" Title="ContactUs Detail" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.ExtraLarge">
+<Modal @ref="viewmodal" Title="Book Detail" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Large">
     <BodyTemplate>
         <div class="container py-5">
             <div class="row g-4 align-items-start">
@@ -137,7 +137,7 @@
 
 <!-- Edit Details Start-->
 
-<Modal @ref="updatemodal" Title="Add Book Details" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.ExtraLarge">
+<Modal @ref="updatemodal" Title="Add Book Detail" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Large">
     <BodyTemplate>
       
             <EditForm Model="@details" OnValidSubmit="HandleValidSubmit">
@@ -167,26 +167,6 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label>Publish Date</label>
-                                <InputDate class="form-control" @bind-Value="details.PublishDate" />
-                            </div>
-
-                            <div class="col-md-6">
-                                <label>Rating</label>
-                                <InputNumber class="form-control" @bind-Value="details.Rating" step="0.1" />
-                            </div>
-
-                            <div class="col-md-6">
-                                <label>Number Of Pages</label>
-                                <InputNumber class="form-control" @bind-Value="details.Pages" step="0.1" />
-                            </div>
-
-                            <div class="col-md-12">
-                                <label>Description</label>
-                                <InputTextArea class="form-control" @bind-Value="details.Description" rows="3" />
-                            </div>
-
-                            <div class="col-md-6">
                                 <label>Cover URL</label>
                                 <InputText class="form-control" @bind-Value="details.CoverUrl" />
                             </div>
@@ -195,6 +175,44 @@
                                 <label>PDF Link</label>
                                 <InputText class="form-control" @bind-Value="details.Link" />
                             </div>
+
+                            <div class="col-md-3">
+                                <label>Publish Date</label>
+                                <InputDate class="form-control" @bind-Value="details.PublishDate" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label>Number Of Pages</label>
+                                <InputNumber class="form-control" @bind-Value="details.Pages" step="0.1" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <label class="form-label">Rating</label>
+                                </div>
+                                <div class="text-yellow-500" style="color: gold;">
+                                    @for (int i = 0; i < (int)details.Rating; i++)
+                                    {
+                                        <i class="fas fa-star"></i>
+                                    }
+
+                                    @if (details.Rating - (int)details.Rating >= 0.25 && details.Rating - (int)details.Rating < 0.75)
+                                    {
+                                        <i class="fas fa-star-half-alt"></i>
+                                    }
+
+                                    @for (int i = 0; i < (5 - (int)details.Rating - ((details.Rating - (int)details.Rating >= 0.25 && details.Rating - (int)details.Rating < 0.75) ? 1 : 0)); i++)
+                                    {
+                                        <i class="far fa-star"></i>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label>Description</label>
+                                <InputTextArea class="form-control" @bind-Value="details.Description" rows="3" />
+                            </div>
+
                             <hr/>
                             <div class="col-12 mt-3 text-end">
                                 <a @onclick="()=>OnHideUpdateClick(details.Id)" class="btn btn-secondary " style="width: 47px; height: 40px">

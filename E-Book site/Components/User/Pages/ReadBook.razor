@@ -160,7 +160,7 @@
 
         Log.LastSeenPage = args.CurrentPage;
         Log.ProgressPercentage = Math.Round((double)args.CurrentPage / args.TotalPages * 100, 1);
-        
+
     }
 
     private void OnDocumentLoaded(PdfViewerEventArgs args)
@@ -184,9 +184,35 @@
 
             Db.BooksLogs.Update(log);
             await Db.SaveChangesAsync();
+            // Update book's average rating
+            await UpdateBookRating(BookId);
             messages.Add(CreateUpdateMessage(ToastType.Success));
         }
+
     }
+
+    private async Task UpdateBookRating(int bookId)
+    {
+        var ratings = await Db.BooksLogs
+            .Where(log => log.BookId == bookId && log.Rating > 0)
+            .Select(log => log.Rating)
+            .ToListAsync();
+
+        if (ratings.Any())
+        {
+            double avgRating = Math.Round((double)ratings.Average(), 1);
+            int ratingCount = ratings.Count();
+            var book = await Db.Books.FindAsync(bookId);
+            if (book != null)
+            {
+                book.Rating = avgRating;
+                book.RatingCount = ratingCount;
+                Db.Books.Update(book);
+                await Db.SaveChangesAsync();
+            }
+        }
+    }
+
 
     <!-- Update Message Start-->
     private ToastMessage CreateUpdateMessage(ToastType toastType)

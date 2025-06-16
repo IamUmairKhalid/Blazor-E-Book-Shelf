@@ -79,6 +79,7 @@
         SavedBooks = await Db.BooksLogs
             .Where(log => log.UserId == userId)
             .Include(log => log.Book)
+            .OrderByDescending(log=>log.Id)
             .ToListAsync();
     }
 

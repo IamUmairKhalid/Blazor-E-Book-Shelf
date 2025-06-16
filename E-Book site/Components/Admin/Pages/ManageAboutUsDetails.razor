@@ -97,7 +97,12 @@
 </div>
 
 
+<!--Toaster Alert message-->
+<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" />
+
+
 @code {
+    List<ToastMessage> messages = new List<ToastMessage>();
     private AboutUs AboutUsModel = new();
     private List<AboutTeamMember> TeamMembers = new();
     private List<Users> AvailableUsers = new();
@@ -138,6 +143,7 @@
             AvailableUsers.Remove(user);
             SelectedUserId = 0;
         }
+        messages.Add(CreateUpdateMessage(ToastType.Success));
     }
 
     private void RemoveTeamMember(AboutTeamMember member)
@@ -146,5 +152,17 @@
         Db.SaveChanges();
         TeamMembers.Remove(member);
         AvailableUsers.Add(member.Users);
+        messages.Add(CreateUpdateMessage(ToastType.Danger));
     }
+
+    <!-- Update Message Start-->
+    private ToastMessage CreateUpdateMessage(ToastType toastType)
+       => new ToastMessage
+       {
+           Type = toastType,
+           Title = "Message",
+           HelpText = $"{DateTime.Now}",
+           Message = $"Hello,The Record is Successfully Updated. ",
+       };
+    <!-- Update Message End-->
 }
