@@ -42,18 +42,6 @@
             </div>
         }
 
-        <!-- Favorite Books -->
-        <div class="col-md-4">
-            <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
-                <div class="card-body text-center">
-                    <i class="bi bi-heart-fill fs-1 text-danger"></i>
-                    <h5 class="card-title mt-3">Favorites</h5>
-                    <p class="card-text">You have @FavoriteCount favorite books</p>
-                    <a href="/favorites" class="btn btn-outline-danger">View Favorites</a>
-                </div>
-            </div>
-        </div>
-
         <!-- Reading History -->
         <div class="col-md-4">
             <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
@@ -62,18 +50,6 @@
                     <h5 class="card-title mt-3">Reading History</h5>
                     <p class="card-text">@HistoryCount books read in the last 7 days</p>
                     <a href="/history" class="btn btn-outline-secondary">View History</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Saved Books / My Collection -->
-        <div class="col-md-4">
-            <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
-                <div class="card-body text-center">
-                    <i class="bi bi-bookmark-star fs-1 text-warning"></i>
-                    <h5 class="card-title mt-3">My Collection</h5>
-                    <p class="card-text">You have @CollectionCount saved books</p>
-                    <a href="/collection" class="btn btn-outline-warning">View Collection</a>
                 </div>
             </div>
         </div>
@@ -90,6 +66,42 @@
             </div>
         </div>
 
+        <!-- Saved Books / My Collection -->
+        <div class="col-md-4">
+            <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
+                <div class="card-body text-center">
+                    <i class="bi bi-bookmark-star fs-1 text-warning"></i>
+                    <h5 class="card-title mt-3">My Collection</h5>
+                    <p class="card-text">You have @CollectionCount saved books</p>
+                    <a href="/collection" class="btn btn-outline-warning">View Collection</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Favorite Books -->
+        <div class="col-md-4">
+            <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
+                <div class="card-body text-center">
+                    <i class="bi bi-heart-fill fs-1 text-danger"></i>
+                    <h5 class="card-title mt-3">Favorites</h5>
+                    <p class="card-text">You have @FavoriteCount favorite books</p>
+                    <a href="/favorites" class="btn btn-outline-danger">View Favorites</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completed Books -->
+        <div class="col-md-4">
+            <div class="card border card-hover rounded shadow-sm h-100" style="background-color: #f8f9fa;">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle-fill fs-1 text-success"></i>
+                    <h5 class="card-title mt-3">Completed</h5>
+                    <p class="card-text">You have @CompletedCount completed books</p>
+                    <a href="/completed" class="btn btn-outline-success">View Completed</a>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -102,6 +114,7 @@
     private int FavoriteCount { get; set; }
     private int HistoryCount { get; set; }
     private int CollectionCount { get; set; }
+    private int CompletedCount { get; set; }
 
 
     protected override async Task OnInitializedAsync()
@@ -110,17 +123,18 @@
         Id = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
         Users = Db.Users.FirstOrDefault(c => c.Id == Id)!;
 
-        LastLog = await Db.BooksLogs
+        LastLog = Db.BooksLogs
        .Where(log => log.UserId == Users.Id && log.Status == "Reading")
        .Include(log => log.Book)
        .OrderByDescending(log => log.UpdatedAt)
-       .FirstOrDefaultAsync();
+       .FirstOrDefault();
 
         FavoriteCount = Db.BooksLogs.Count(log => log.UserId == Users.Id && log.Favorite);
 
 
         CollectionCount = Db.BooksLogs.Count(log => log.UserId == Users.Id);
 
+        CompletedCount = Db.BooksLogs.Count(log => log.UserId == Users.Id && log.Status=="Completed");
 
         HistoryCount = Db.BooksLogs
             .Where(log => log.UserId == Users.Id && log.UpdatedAt >= DateTime.Now.AddDays(-7) && log.Status == "Reading" || log.Status == "Completed")

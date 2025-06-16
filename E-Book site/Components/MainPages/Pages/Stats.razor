@@ -40,8 +40,6 @@
 <!-- /Stats Section -->
 
 @code {
-    private IEnumerable<Users> Users;
-    private IEnumerable<Book> Books; 
 
     private int totalUsers ;
     private int totalBooks ;
@@ -59,9 +57,16 @@
     {
         totalUsers = Db.Users.Count();
         totalBooks = Db.Books.Count();
+        activeReaders = Db.BooksLogs
+        .Where(log => log.Status == "Reading" || log.Status == "Completed")
+        .Select(log => log.UserId)
+        .Distinct()
+        .Count();
+        totalReads = Db.BooksLogs
+        .Where(log => log.Status == "Completed").Count();
 
 
-        timer = new System.Timers.Timer(40);
+        timer = new System.Timers.Timer(50);
         timer.Elapsed += (s, e) => InvokeAsync(UpdateCounters);
         timer.Start();
     }
@@ -70,9 +75,9 @@
     {
         bool stillRunning = false;
 
-        if (animatedUsers < totalUsers) { animatedUsers+= 2; stillRunning = true; }
-        if (animatedBooks < totalBooks) { animatedBooks += 2; stillRunning = true; }
-        if (animatedReads < totalReads) { animatedReads += 2; stillRunning = true; }
+        if (animatedUsers < totalUsers) { animatedUsers++; stillRunning = true; }
+        if (animatedBooks < totalBooks) { animatedBooks ++; stillRunning = true; }
+        if (animatedReads < totalReads) { animatedReads ++; stillRunning = true; }
         if (animatedActiveReaders < activeReaders) { animatedActiveReaders++; stillRunning = true; }
 
         if (!stillRunning)

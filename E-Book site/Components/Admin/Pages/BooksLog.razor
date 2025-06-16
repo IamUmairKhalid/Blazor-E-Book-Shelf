@@ -147,7 +147,6 @@
     List<ToastMessage> messages = new List<ToastMessage>();
     protected IEnumerable<Model.BooksLogs> Logs { get; set; }
     private int Count => Logs?.Count() ?? 0;
-    private BooksLogs details;
 
     protected override void OnInitialized()
     {

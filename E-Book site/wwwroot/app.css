@@ -312,3 +312,11 @@ pre code {
     align-items: center;
     justify-content: center;
 }
+
+/*reading book*/
+
+.reading-toolbar {
+    max-height: 380px;
+    overflow-y: auto;
+    border-radius: 12px;
+}

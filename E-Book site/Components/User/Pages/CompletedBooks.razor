@@ -1,4 +1,4 @@
-﻿@page "/favorites"
+﻿@page "/completed"
 @layout UserLayout
 @rendermode InteractiveServer
 @inject AuthenticationStateProvider Auth
@@ -9,7 +9,7 @@
 @attribute [Authorize]
 
 <div class="container mt-5 mb-5">
-    <h2 class="text-center mb-5" style="color: #000;"><b>Favorite Books!!!</b></h2>
+    <h2 class="text-center mb-5" style="color: #000;"><b>Completed Books!!!</b></h2>
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @if (FavoriteBooks == null)
         {
@@ -21,15 +21,15 @@
         }
         else
         {
-          
+
             @foreach (var item in FavoriteBooks)
             {
-            
+
                 <div class="col">
                     <div class="card card-hover h-100 shadow-sm d-flex flex-column"
                          style="cursor:pointer"
                          @onclick="() => OpenBook(item.BookId)">
-            
+
                         <!-- Slightly smaller image container -->
                         <div class="overflow-hidden" style="height:320px;">
                             <img src="@item.Book.CoverUrl"
@@ -37,7 +37,7 @@
                                  class="w-100 h-100"
                                  style="object-fit: cover;">
                         </div>
-            
+
                         <!-- Book title and author -->
                         <div class="card-body text-center mt-auto">
                             <h5 class="card-title mb-1">@item.Book.Title</h5>
@@ -46,8 +46,8 @@
                     </div>
                 </div>
             }
-             
-        
+
+
         }
     </div>
 </div>
@@ -61,7 +61,7 @@
 
         FavoriteBooks = await Db.BooksLogs
             .Include(log => log.Book)
-            .Where(log => log.UserId == userId && log.Favorite)
+            .Where(log => log.UserId == userId && log.Status == "Completed")
             .ToListAsync();
     }
 

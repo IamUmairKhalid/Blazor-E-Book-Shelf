@@ -30,6 +30,9 @@
                         <div>
                             <strong>@item.Book.Title</strong><br />
                             <small>Last Seen: Page @item.LastSeenPage on @item.UpdatedAt?.ToString("MMM dd, yyyy")</small>
+                            <span class="badge @(item.Status == "Reading" ? "bg-primary" : "bg-success")">
+                                @(item.Status)
+                            </span>
                         </div>
                         <a class="btn btn-outline-primary btn-sm" href="/readbook/@item.BookId">Continue</a>
                     </li>

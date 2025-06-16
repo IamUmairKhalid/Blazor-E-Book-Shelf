@@ -81,10 +81,7 @@ else
                     <!-- Buttons -->
                     <div class="mt-4 d-flex gap-3 flex-wrap">
                         <button class="btn hover-in text-light btn-md px-4" style="background-color: #FF6F3C" @onclick="ReadNow">
-                            <i class="bi bi-book me-2"></i>Read Now
-                        </button>
-                        <button class="btn hover-in btn-outline-secondary btn-md px-2" @onclick="AddToLibraryAsync">
-                            <i class="bi bi-bookmark-plus me-2"></i>Add to Library
+                            <i class="bi bi-book me-2"></i>Read
                         </button>
                     </div>
                 </div>
@@ -93,8 +90,7 @@ else
     </div>
 }
 
-<!-- Toaster Alert -->
-<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" />
+
 
 @code {
     [Parameter] public int BookId { get; set; }
@@ -122,59 +118,4 @@ else
     {
         NavigationManager.NavigateTo($"/readbook/{BookId}", true);
     }
-
-    private async Task AddToLibraryAsync()
-    {
-        var authState = await Auth.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (!user.Identity?.IsAuthenticated ?? true)
-        {
-            NavigationManager.NavigateTo("/signin");
-            return;
-        }
-
-        var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-        // Check if already exists
-        var exists = await Db.BooksLogs
-            .AnyAsync(l => l.UserId == userId && l.BookId == BookId);
-
-        if (!exists)
-        {
-            Db.BooksLogs.Add(new BooksLogs
-            {
-                UserId = userId,
-                BookId = BookId,
-                ISBN = Book?.ISBN ?? "",
-                LastSeenPage = 1,
-                Favorite = false,
-                Status = "NotOpend",
-                UpdatedAt = DateTime.Now
-            });
-            await Db.SaveChangesAsync();
-
-            messages.Add(AddMessage(ToastType.Success));
-        }
-        else
-        {
-            messages.Add(ExistMessage(ToastType.Info));
-        }
-    }
-
-    private ToastMessage AddMessage(ToastType toastType) => new ToastMessage
-    {
-        Type = toastType,
-        Title = "Library Updated",
-        HelpText = $"{DateTime.Now}",
-        Message = "The book was successfully added to your library."
-    };
-
-    private ToastMessage ExistMessage(ToastType toastType) => new ToastMessage
-    {
-        Type = toastType,
-        Title = "Already Exists",
-        HelpText = $"{DateTime.Now}",
-        Message = "This book is already in your library."
-    };
 }
