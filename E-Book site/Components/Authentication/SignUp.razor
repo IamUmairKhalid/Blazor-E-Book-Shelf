@@ -49,6 +49,7 @@
 @code {
     private SignUpModel signUpModel = new();
     private Users User { get; set; } = new();
+    private IEnumerable<Users> UserExist;
     public string? ErrorMessage;
 
     private void HandleSignUp()
@@ -64,6 +65,11 @@
         }
         else
         {
+            UserExist = Db.Users.ToList();
+            if(UserExist is null)
+            {
+                User.Role = "Admin";
+            }
             User.UserName = signUpModel.FullName;
             User.Email = signUpModel.Email;
             User.Password = signUpModel.Password;

@@ -29,28 +29,15 @@
             <tbody>
                 @foreach (var item in Logs)
                 {
-                    <tr >
+                    <tr style="cursor:pointer" @onclick="() => OnShowDetailClick(item.Id)">
                         <td>@item.Id</td>
                         <td>@item.User.UserName</td>
                         <td>
                             <span class="short-text">@(item.Book.Title.Length > 10 ? item.Book.Title.Substring(0, 10) + "..." : item.Book.Title)</span>
                         </td>
-                        @* <td>
-                            <span class="badge @(item.Role == "Admin" ? "bg-primary" : "bg-secondary")">
-                                @(item.Role)
-                            </span>
-                        </td>
-                        <td><span class="badge @(item.Subscription == true ? "bg-success" : "bg-danger")">
-                            @(
-                                item.Subscription == true ? "Active" :
-                                item.Subscription == false ? "Inactive" :
-                                "Unknown"
-                                    )
-                            </span>
-                        </td> *@
                         <td>@item.Status</td>
                         <td>@item.UpdatedAt</td>
-                        <td>@item.ProgressPercentage</td>
+                        <td>@item.ProgressPercentage%</td>
                     </tr>
                 }
             </tbody>
@@ -60,138 +47,89 @@
 </div>
 
 
+<!-- View Message -->
 
-@* <!-- Edit Details Start-->
-
-<Modal @ref="updatemodal" Title="User Detail" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Large">
+<Modal @ref="viewmodal" Title="Log Detail" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Large">
     <BodyTemplate>
-        <div class="d-flex justify-content-center mt-3">
-            <div class="text-center">
-                <img src="ProfileImages/@details.ProfilePictureUrl" class="rounded-circle shadow mb-3" alt="@details.UserName" width="150" height="150">
-            </div>
-        </div>
-        <EditForm Model="@details" OnValidSubmit="HandleValidSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <div class="container mb-4 p-3">
-                <div class="row g-4 ">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label>UserName</label>
-                            <InputText class="form-control" readonly @bind-value="details.UserName" />
-                        </div>
+        <dl class="row justify-content-center">
+            <dt class="col-sm-2">ID: </dt>
+            <dd class="col-sm-10"> @details.Id</dd>
 
-                        <div class="col-md-6">
-                            <label>Email</label>
-                            <InputText class="form-control" readonly @bind-value="details.Email" />
-                        </div>
+            <dt class="col-sm-2">User Id: </dt>
+            <dd class="col-sm-10"> @details.User.Id</dd>
 
-                        <div  class="col-md-6">
-                            <label>Role</label>
-                            <InputSelect @bind-Value="details.Role" class="form-control">
-                                <option value="Admin">Admin</option>
-                                <option value="User">User</option>
-                            </InputSelect>
-                        </div>
+            <dt class="col-sm-2">Name: </dt>
+            <dd class="col-sm-10"> @details.User.UserName</dd>
 
-                        <div class="col-md-6">
-                            <label>Registered At</label>
-                            <InputDate class="form-control" readonly @bind-value="details.CreatedAt" />
-                        </div>
+            <dt class="col-sm-2">Book Id: </dt>
+            <dd class="col-sm-10"> @details.Book.Id</dd>
 
-                        <div class="col-md-6">
-                            @if (details.Role == "User")
-                            {
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="isActiveSwitch" @bind="details.Subscription">
-                                    <label class="form-check-label" for="isActiveSwitch">
-                                        @(
-                                            details.Subscription == true ? "Active" :
-                                            details.Subscription == false ? "Inactive" :
-                                            "Unknown"
-                                            )
-                                    </label>
-                                </div>
-                            }
-                        </div>
-                        
-                        <hr class="mt-5"/>
-                        <div class="col-12 mt-3 text-end">
-                            <a @onclick="()=>OnHideUpdateClick(details.Id)" class="btn btn-secondary " style="width: 47px; height: 40px">
-                                <i class="bi bi-x-lg fs-5"></i>
-                            </a>
-                            |
-                            <Button type="ButtonType.Submit" class="btn btn-outline-success" style="width: 47px; height: 40px">
-                                <i class="bi bi-floppy fs-5"></i>
-                            </Button>
-                        </div>
-                    </div>
+            <dt class="col-sm-2">Book Title: </dt>
+            <dd class="col-sm-10"> @details.Book.Title</dd>
+
+            <dt class="col-sm-2">Status: </dt>
+            <dd class="col-sm-10"> @details.Status</dd>
+
+            <dt class="col-sm-2">Rating: </dt>
+            <dd class="col-sm-10">
+                <div class="text-yellow-500" style="color: gold;">
+                    @for (int i = 0; i < (int)details.Rating; i++)
+                    {
+                        <i class="fas fa-star"></i>
+                    }
+
+                    @if (details.Rating - (int)details.Rating >= 0.25 && details.Rating - (int)details.Rating < 0.75)
+                    {
+                        <i class="fas fa-star-half-alt"></i>
+                    }
+
+                    @for (int i = 0; i < (5 - (int)details.Rating - ((details.Rating - (int)details.Rating >= 0.25 && details.Rating - (int)details.Rating < 0.75) ? 1 : 0)); i++)
+                    {
+                        <i class="far fa-star"></i>
+                    }
                 </div>
+            </dd>
 
-            </div>
+            <dt class="col-sm-2"> Last Activity: </dt>
+            <dd class="col-sm-10"> @details.UpdatedAt</dd>
 
-        </EditForm>
-
+            <dt class="col-sm-2">Progress: </dt>
+            <dd class="col-sm-10"> @details.ProgressPercentage%</dd>
+        </dl>
     </BodyTemplate>
+    <FooterTemplate>
+        <a @onclick="OnHideDetailsClick" class="btn btn-secondary " style="width: 47px; height: 40px">
+            <i class="bi bi-x-lg fs-5"></i>
+        </a>
+    </FooterTemplate>
 </Modal>
-
-<!-- Edit Details End -->
-
-<!--Toaster Alert message-->
-<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" /> *@
-
 
 
 
 @code {
-    List<ToastMessage> messages = new List<ToastMessage>();
+
     protected IEnumerable<Model.BooksLogs> Logs { get; set; }
+    private BooksLogs details { get; set; }
     private int Count => Logs?.Count() ?? 0;
 
     protected override void OnInitialized()
     {
 
-        Logs = Db.BooksLogs.Include(u=>u.User).Include(u=> u.Book).ToList();
+        Logs = Db.BooksLogs.Include(u=>u.User).Include(u=> u.Book).OrderByDescending(u=>u.UpdatedAt).ToList();
 
     }
 
-   
-    // <!-- Update Record Start-->
-    // private Modal updatemodal = default!;
+    <!-- View Record Modal-->
+    private Modal viewmodal = default!;
 
-    // private async Task OnUpdateClick(int id)
-    // {
-    //     details = Db.BooksLogs.FirstOrDefault(c => c.Id == id);
-    //     await updatemodal.ShowAsync();
-    // }
+    private async Task OnShowDetailClick(int id)
+    {
+        details = Db.BooksLogs.FirstOrDefault(c => c.Id == id);
+        await viewmodal.ShowAsync();
+    }
 
-    // private async Task OnHideUpdateClick(int id)
-    // {
-    //     await updatemodal.HideAsync();
-    // }
-
-    // private async Task HandleValidSubmit()
-    // {
-    //     Db.Users.Update(details);
-    //     if (details.Role == "Admin" && details.Subscription == false)
-    //     {
-    //         details.Subscription = true; 
-    //     }
-    //     await Db.SaveChangesAsync();
-    //     Users = Db.Users.OrderBy(c => c.Role).OrderBy(c => c.CreatedAt).ToList();
-    //     await updatemodal.HideAsync();
-    //     messages.Add(CreateUpdateMessage(ToastType.Success));
-    // }
-    // <!-- Update Record Start-->
-
-    // <!-- Update Message Start-->
-    // private ToastMessage CreateUpdateMessage(ToastType toastType)
-    //    => new ToastMessage
-    //        {
-    //            Type = toastType,
-    //            Title = "Message",
-    //            HelpText = $"{DateTime.Now}",
-    //            Message = $"Hello,The Record is Successfully Saved. DateTime: {DateTime.Now}",
-    //        };
-    // <!-- Update Message End-->
+    private async Task OnHideDetailsClick()
+    {
+        await viewmodal.HideAsync();
+    }
 }

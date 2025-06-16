@@ -2,10 +2,229 @@
 @page "/Admin"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
 @attribute [Authorize(Roles ="Admin")]
 
+<PageTitle>Admin Dashboard</PageTitle>
 
-@code
-{
+<div class="container-fluid mt-4">
+    <h2 class="mb-4 text-dark">📊 Admin Dashboard</h2>
 
+    <!-- Info Cards -->
+    <div class="row g-4">
+        <div class="col-md-3">
+            <a href="/Admin/UsersDetails" class="text-white text-decoration-none">
+                <div class="card card-hover text-white bg-primary shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Users</h5>
+                        <h2>@UserCount</h2>
+                        <div>Manage Users</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <a href="/Admin/booksdetails" class="text-white text-decoration-none">
+                <div class="card card-hover text-white bg-success shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Books</h5>
+                        <h2>@BookCount</h2>
+                        <div>Manage Books</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <a href="/Admin/Testimonials" class="text-white text-decoration-none">
+                <div class="card card-hover text-white bg-warning shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Testimonials</h5>
+                        <h2>@TestimonialCount</h2>
+                        <div>View</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3">
+            <a href="/Admin/BooksLogs" class="text-white text-decoration-none">
+                <div class="card card-hover text-white bg-danger shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Reading Logs</h5>
+                        <h2>@LogCount</h2>
+                        <div>View Logs</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+
+
+
+    <!-- Tables Section -->
+    <!-- Recent Activities -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">Recent Activity</div>
+                <div class="card-body">
+                    @if (RecentLogs.Any())
+                    {
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Book</th>
+                                    <th>Last Page</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var log in RecentLogs)
+                                {
+                                    <tr>
+                                        <td>@log.User?.UserName</td>
+                                        <td>@log.Book?.Title</td>
+                                        <td>@log.LastSeenPage</td>
+                                        <td>@log.Status</td>
+                                        <td>@log.UpdatedAt</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No recent activity.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <div class="row mt-4">
+        <!-- Recent Users -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    Recent User Registrations
+                </div>
+                <div class="card-body">
+                    @if (RecentUsers != null && RecentUsers.Any())
+                    {
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Registered</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in RecentUsers)
+                                {
+                                    <tr>
+                                        <td>@user.Id</td>
+                                        <td>@user.UserName</td>
+                                        <td>
+                                            <span class="short-text">@(user.Email.Length > 10 ? user.Email.Substring(0, 10) + "..." : user.Email)</span>
+                                        </td>
+                                        <td>@user.CreatedAt</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No users found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Read Books -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    Top Read Books
+                </div>
+                <div class="card-body">
+                    @if (TopBooks != null && TopBooks.Any())
+                    {
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Top Rated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var book in TopBooks)
+                                {
+                                    <tr>
+                                        <td>@book.Id</td>
+                                        <td>@book.Title</td>
+                                        <td>@book.Author</td>
+                                        <td>@book.RatingCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No books found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+
+@code {
+    private int UserCount;
+    private int BookCount;
+    private int TestimonialCount;
+    private int LogCount;
+    private List<Users> RecentUsers = new();
+    private List<Book> TopBooks = new();
+    private List<BooksLogs> RecentLogs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserCount = await Db.Users.CountAsync();
+        BookCount = await Db.Books.CountAsync();
+        TestimonialCount = await Db.Testimonials.CountAsync();
+        LogCount = await Db.BooksLogs.CountAsync();
+
+        RecentLogs = await Db.BooksLogs
+            .Include(l => l.User)
+            .Include(l => l.Book)
+            .OrderByDescending(l => l.UpdatedAt)
+            .Take(5)
+            .ToListAsync();
+
+        // Fetch latest registered users (e.g., last 5)
+        RecentUsers = await Db.Users
+            .OrderByDescending(u => u.CreatedAt)
+            .Take(5)
+            .ToListAsync();
+
+        // Fetch top read books sorted by ReadCount (assumes you store it in Book model)
+        TopBooks = await Db.Books
+            .OrderByDescending(b => b.RatingCount)
+            .Take(5)
+            .ToListAsync();
+    }
 }
