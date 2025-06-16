@@ -12,16 +12,16 @@
 
             <!-- Center: Social Media Links -->
             <div class="col-md-4 mb-3 mb-md-0 d-flex justify-content-center gap-4">
-                <a href="@socials.FB" target="_blank" class="text-light hover-in">
+                <a href="@socials?.FB" target="_blank" class="text-light hover-in">
                     <i class="bi bi-facebook fs-3 "></i>
                 </a>
-                <a href="@socials.X" target="_blank" class="text-light hover-in">
+                <a href="@socials?.X" target="_blank" class="text-light hover-in">
                     <i class="bi bi-twitter-x fs-3 "></i>
                 </a>
-                <a href="@socials.LinkD" target="_blank" class="text-light hover-in">
+                <a href="@socials?.LinkD" target="_blank" class="text-light hover-in">
                     <i class="bi bi-linkedin fs-3 "></i>
                 </a>
-                <a href="@socials.Insta" target="_blank" class="text-light hover-in">
+                <a href="@socials?.Insta" target="_blank" class="text-light hover-in">
                     <i class="bi bi-instagram fs-3 "></i>
                 </a>
             </div>
@@ -49,7 +49,7 @@
 
 
 @code {
-    private Social? socials { get; set; }
+    private Social socials { get; set; }
 
     protected override void OnInitialized()
     {

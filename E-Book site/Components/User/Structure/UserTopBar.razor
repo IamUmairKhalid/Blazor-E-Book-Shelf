@@ -1,4 +1,8 @@
-﻿@rendermode InteractiveServer
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore
+@inject AuthenticationStateProvider Auth
+@rendermode InteractiveServer
 <!--Modal Start-->
 
 <Modal @ref="signoutModal" Title="Confirm SignOut" UseStaticBackdrop="true" CloseOnEscape="false" IsCentered="true">
@@ -44,14 +48,86 @@
 </nav>
 
 <!-- Topbar End -->
+<!--Testimonial Modal-->
+@if (showModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title">Share Your Experience</h5>
+                    <button type="button" class="btn-close" @onclick="DismissModal"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="testimonial" OnValidSubmit="HandleReviewSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label>Content</label>
+                            <InputTextArea class="form-control" rows="4" @bind-Value="testimonial.Content" />
+                        </div>
+
+                        <div class="star-rating" style="font-size: 1.5rem; cursor: pointer;">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                double fullThreshold = i;
+                                double halfThreshold = i - 0.5;
+
+                                <span class="star-wrapper" style="position: relative; display: inline-block; width: 24px;">
+                                    <span @onclick="@(() => SetRating(halfThreshold))"
+                                          style="position: absolute; width: 12px; height: 100%; left: 0;"></span>
+                                    <span @onclick="@(() => SetRating(fullThreshold))"
+                                          style="position: absolute; width: 12px; height: 100%; right: 0;"></span>
+
+                                    <i class="@GetStarClass(i)"></i>
+                                </span>
+                            }
+                        </div>
+
+
+
+                        <button class="btn btn-success mt-3 " type="submit">Submit Review</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!--Toaster Success Testimonial Modal-->
+<Toasts Messages="toastMessages" AutoHide="true" Placement="ToastsPlacement.TopRight" />
 
 
 @code {
+    private int Id;
+    private Users Users { get; set; }
+    private Testimonial testimonial = new();
+    private bool showModal = false;
+    private double hoverRating = 0.0;
+    private bool modalDismissed = false;
+
+    private List<ToastMessage> toastMessages = new();
+
     private Modal signoutModal = default!;
+
 
     private async Task ShowLogoutModal()
     {
-        await signoutModal.ShowAsync();
+        var user = (await Auth.GetAuthenticationStateAsync()).User;
+        Id = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        Users = Db.Users.FirstOrDefault(c => c.Id == Id)!;
+
+        var alreadyReviewed = await Db.Testimonials.AnyAsync(t => t.UserId == Users.Id);
+        if (!alreadyReviewed)
+        {
+            testimonial.UserId = Users.Id;
+            showModal = true;
+        }
+        else
+        {
+            await signoutModal.ShowAsync();
+        }
     }
 
     private async Task HideLogoutModal()
@@ -64,4 +140,63 @@
         await signoutModal.HideAsync();
         NavigationManager.NavigateTo("/signout", forceLoad: true);
     }
+
+
+
+    private async Task HandleReviewSubmit()
+    {
+        testimonial.CreatedAt = DateTime.Now;
+        testimonial.IsApproved = false;
+
+        Db.Testimonials.Add(testimonial);
+        await Db.SaveChangesAsync();
+
+        showModal = false;
+
+        toastMessages.Add(new ToastMessage
+        {
+            Title = "Thank You!",
+            Message = "Your review has been submitted.",
+            Type = ToastType.Success,
+            HelpText = DateTime.Now.ToString()
+        });
+
+        await signoutModal.ShowAsync();
+    }
+
+    private void SetRating(double value)
+    {
+        testimonial.Rating = testimonial.Rating == value ? 0 : value;
+    }
+
+
+    private void HoverStar(int starIndex, MouseEventArgs e)
+    {
+        hoverRating = starIndex - (e.OffsetX < 12 ? 0.5 : 0.0);
+    }
+
+    private void ResetHover()
+    {
+        hoverRating = 0;
+    }
+
+    private string GetStarClass(int starIndex)
+    {
+        double rating = hoverRating > 0 ? hoverRating : testimonial.Rating;
+
+        if (rating >= starIndex)
+            return "fas fa-star text-warning";
+        else if (rating >= starIndex - 0.5)
+            return "fas fa-star-half-alt text-warning";
+        else
+            return "far fa-star text-muted";
+    }
+
+    private async Task DismissModal()
+    {
+        await signoutModal.ShowAsync();
+        showModal = false;
+        modalDismissed = true;
+    }
+
 }

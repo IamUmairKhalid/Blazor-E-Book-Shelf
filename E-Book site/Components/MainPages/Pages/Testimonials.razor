@@ -1,45 +1,75 @@
-﻿@rendermode InteractiveServer
-<!-- Testimonial Start -->
+﻿@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
 <div class="container mt-5 mb-5">
     <h2 class="text-center mb-4" style="color: #000000;"><b>Our Users Say</b></h2>
 
-    <Carousel Autoplay="CarouselAutoPlay.StartOnPageLoad" >
-        @for (int i = 0; i < 6; i++)
-        {
-            <CarouselItem Active="@(i == 0)" Interval="3000">
-                <div class="row justify-content-center">
-                    <div class="col-12 col-md-10">
-                        <div class="card border-1 shadow-sm">
-                            <div class="card-body p-4">
-                                <div class="row align-items-center">
-                                    <!-- Avatar -->
-                                    <div class="col-12 col-lg-4 text-center mb-3 mb-lg-0">
-                                        <img src="StaticImages/Carousel_img_1.jpg"
-                                             class="rounded-circle img-fluid shadow"
-                                             alt="woman avatar"
-                                             width="160" height="160" />
-                                    </div>
+    @if (Test.Any())
+    {
+        <Carousel Autoplay="CarouselAutoPlay.StartOnPageLoad" AutoplayInterval="3000" ShowControls="true" ShowIndicators="true">
+            @for (int i = 0; i < Test.Count; i++)
+            {
+                var item = Test[i];
+                <CarouselItem Active="@(i == 0)">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-md-10">
+                            <div class="card border-1 shadow-sm">
+                                <div class="card-body p-4">
+                                    <div class="row align-items-center">
+                                        <!-- Avatar -->
+                                        <div class="col-12 col-lg-4 text-center mb-3 mb-lg-0">
+                                            <img src="ProfileImages/@item.User.ProfilePictureUrl"
+                                                 class="rounded-circle shadow mb-3"
+                                                 alt="@item.User.UserName"
+                                                 width="160" height="160">
+                                        </div>
 
-                                    <!-- Text -->
-                                    <div class="col-12 col-lg-8 text-center text-lg-start">
-                                        <h5 class="fw-bold mb-2">Anna Smith</h5>
-                                        <p class="text-muted mb-3">
-                                            “Lorem ipsum dolor sit amet consectetur adipisicing elit. Id quam sapiente molestiae numquam quas, voluptates omnis nulla ea odio quia similique corrupti magnam.”
-                                        </p>
-                                        <div class="text-warning fs-3">★★★★★</div>
+                                        <!-- Text -->
+                                        <div class="col-12 col-lg-8 text-center text-lg-start">
+                                            <h5 class="fw-bold mb-2">@item.User.UserName</h5>
+                                            <p class="text-muted mb-3">“@item.Content”</p>
+
+                                            <div style="color: gold;">
+                                                @for (int j = 0; j < (int)item.Rating; j++)
+                                                {
+                                                    <i class="fas fa-star"></i>
+                                                }
+
+                                                @if (item.Rating - (int)item.Rating >= 0.25 && item.Rating - (int)item.Rating < 0.75)
+                                                {
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                }
+
+                                                @for (int j = 0; j < (5 - (int)item.Rating - ((item.Rating - (int)item.Rating >= 0.25 && item.Rating - (int)item.Rating < 0.75) ? 1 : 0)); j++)
+                                                {
+                                                    <i class="far fa-star"></i>
+                                                }
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </CarouselItem>
-        }
-    </Carousel>
+                </CarouselItem>
+            }
+        </Carousel>
+    }
+    else
+    {
+        <h5 class="text-center text-muted">No testimonials available.</h5>
+    }
 </div>
 
-<!-- Testimonial End -->
-
 @code {
+    protected List<Testimonial> Test { get; set; } = [];
 
+    protected override void OnInitialized()
+    {
+        Test = Db.Testimonials
+                 .Include(t => t.User)
+                 .Where(t => t.IsApproved)
+                 .OrderByDescending(t => t.CreatedAt)
+                 .ToList();
+    }
 }

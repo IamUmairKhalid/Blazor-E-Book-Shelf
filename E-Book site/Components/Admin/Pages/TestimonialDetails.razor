@@ -29,11 +29,11 @@
             <tbody>
                 @foreach (var item in Test)
                 {
-                    <tr>
+                    <tr style ="cursor:pointer" @onclick ="() => OnUpdateClick(item.Id)">
                         <td>@item.Id</td>
-                        <td>@item.Name</td>
+                        <td>@item.User.UserName</td>
                         <td>
-                            <span class="short-text">@(item.Content.Length > 10 ? item.Content.Substring(0, 20) + "..." : item.Content)</span>
+                            <span class="short-text">@(item.Content.Length > 20 ? item.Content.Substring(0, 20) + "..." : item.Content)</span>
                         </td>
                         <td>
                             <div class="text-yellow-500" style="color: gold;">
@@ -53,7 +53,7 @@
                                 }
                             </div>
                         </td>
-                        <td>@item.ImageUrl</td>
+                        <td><span class="short-text">@(item.User.ProfilePictureUrl.Length > 15 ? item.User.ProfilePictureUrl.Substring(0, 15) + "..." : item.User.ProfilePictureUrl)</span></td>
                         <td>@item.CreatedAt</td>
                     </tr>
                 }
@@ -65,13 +65,13 @@
 
 
 
-@* <!-- Edit Details Start-->
+<!-- Edit Details Start-->
 
-<Modal @ref="updatemodal" Title="User Detail" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Large">
+<Modal @ref="updatemodal" Title="Review Detail" UseStaticBackdrop="true" CloseOnEscape="false" Size="ModalSize.Large">
     <BodyTemplate>
         <div class="d-flex justify-content-center mt-3">
             <div class="text-center">
-                <img src="ProfileImages/@details.ProfilePictureUrl" class="rounded-circle shadow mb-3" alt="@details.UserName" width="150" height="150">
+                <img src="ProfileImages/@details.User.ProfilePictureUrl" class="rounded-circle shadow mb-3" alt="@details.User.UserName" width="150" height="150">
             </div>
         </div>
         <EditForm Model="@details" OnValidSubmit="HandleValidSubmit">
@@ -80,43 +80,65 @@
             <div class="container mb-4 p-3">
                 <div class="row g-4 ">
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label>UserName</label>
-                            <InputText class="form-control" readonly @bind-value="details.UserName" />
+                            <InputText class="form-control" readonly @bind-value="details.User.UserName" />
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label>Email</label>
-                            <InputText class="form-control" readonly @bind-value="details.Email" />
+                            <InputText class="form-control" readonly @bind-value="details.User.Email" />
                         </div>
 
-                        <div  class="col-md-6">
-                            <label>Role</label>
-                            <InputSelect @bind-Value="details.Role" class="form-control">
-                                <option value="Admin">Admin</option>
-                                <option value="User">User</option>
-                            </InputSelect>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label>Registered At</label>
+                        <div class="col-md-4">
+                            <label>Reviewed At</label>
                             <InputDate class="form-control" readonly @bind-value="details.CreatedAt" />
                         </div>
+                        
+
+                        <div class="col-md-12">
+                            <label class="form-label">Message</label>
+                            <InputTextArea class="form-control" readonly @bind-Value="details.Content" />
+                        </div>
+
 
                         <div class="col-md-6">
-                            @if (details.Role == "User")
-                            {
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="isActiveSwitch" @bind="details.Subscription">
-                                    <label class="form-check-label" for="isActiveSwitch">
-                                        @(
-                                            details.Subscription == true ? "Active" :
-                                            details.Subscription == false ? "Inactive" :
-                                            "Unknown"
-                                            )
-                                    </label>
-                                </div>
-                            }
+                            <div class="col-md-6">
+                                <label class="form-label">Review Approval</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="isActiveSwitch" @bind="details.IsApproved">
+                                <label class="form-check-label" for="isActiveSwitch">
+                                    @(
+                                      details.IsApproved == true ? "Approved" :
+                                      details.IsApproved == false ? "Not Approved" :
+                                      "Unknown"
+                                      )
+                                </label>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="col-md-6">
+                                <label class="form-label">Rating</label>
+                            </div>
+                            <div class="text-yellow-500" style="color: gold;">
+                                @for (int i = 0; i < (int)details.Rating; i++)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+
+                                @if (details.Rating - (int)details.Rating >= 0.25 && details.Rating - (int)details.Rating < 0.75)
+                                {
+                                    <i class="fas fa-star-half-alt"></i>
+                                }
+
+                                @for (int i = 0; i < (5 - (int)details.Rating - ((details.Rating - (int)details.Rating >= 0.25 && details.Rating - (int)details.Rating < 0.75) ? 1 : 0)); i++)
+                                {
+                                    <i class="far fa-star"></i>
+                                }
+                            </div>
                         </div>
 
                         <hr class="mt-5"/>
@@ -142,7 +164,7 @@
 <!-- Edit Details End -->
 
 <!--Toaster Alert message-->
-<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" /> *@
+<Toasts class="p-3" Messages="messages" AutoHide="true" StackLength="3" Placement="ToastsPlacement.TopRight" />
 
 
 
@@ -156,47 +178,43 @@
     protected override void OnInitialized()
     {
 
-        Test = Db.Testimonials.ToList(); 
+        Test = Db.Testimonials.Include(c => c.User).ToList();
 
     }
 
 
-    // <!-- Update Record Start-->
-    // private Modal updatemodal = default!;
+    <!-- Update Record Start-->
+    private Modal updatemodal = default!;
 
-    // private async Task OnUpdateClick(int id)
-    // {
-    //     details = Db.BooksLogs.FirstOrDefault(c => c.Id == id);
-    //     await updatemodal.ShowAsync();
-    // }
+    private async Task OnUpdateClick(int id)
+    {
+        details = Db.Testimonials.Include(c => c.User).FirstOrDefault(c => c.Id == id);
+        await updatemodal.ShowAsync();
+    }
 
-    // private async Task OnHideUpdateClick(int id)
-    // {
-    //     await updatemodal.HideAsync();
-    // }
+    private async Task OnHideUpdateClick(int id)
+    {
+        await updatemodal.HideAsync();
+    }
 
-    // private async Task HandleValidSubmit()
-    // {
-    //     Db.Users.Update(details);
-    //     if (details.Role == "Admin" && details.Subscription == false)
-    //     {
-    //         details.Subscription = true;
-    //     }
-    //     await Db.SaveChangesAsync();
-    //     Users = Db.Users.OrderBy(c => c.Role).OrderBy(c => c.CreatedAt).ToList();
-    //     await updatemodal.HideAsync();
-    //     messages.Add(CreateUpdateMessage(ToastType.Success));
-    // }
-    // <!-- Update Record Start-->
+    private async Task HandleValidSubmit()
+    {
+        Db.Testimonials.Update(details);
+        await Db.SaveChangesAsync();
+        Test = Db.Testimonials.ToList();
+        await updatemodal.HideAsync();
+        messages.Add(CreateUpdateMessage(ToastType.Success));
+    }
+    <!-- Update Record Start-->
 
-    // <!-- Update Message Start-->
-    // private ToastMessage CreateUpdateMessage(ToastType toastType)
-    //    => new ToastMessage
-    //        {
-    //            Type = toastType,
-    //            Title = "Message",
-    //            HelpText = $"{DateTime.Now}",
-    //            Message = $"Hello,The Record is Successfully Saved. DateTime: {DateTime.Now}",
-    //        };
-    // <!-- Update Message End-->
+    <!-- Update Message Start-->
+    private ToastMessage CreateUpdateMessage(ToastType toastType)
+       => new ToastMessage
+           {
+               Type = toastType,
+               Title = "Message",
+               HelpText = $"{DateTime.Now}",
+               Message = $"Hello,The Record is Successfully Saved. DateTime: {DateTime.Now}",
+           };
+    <!-- Update Message End-->
 }

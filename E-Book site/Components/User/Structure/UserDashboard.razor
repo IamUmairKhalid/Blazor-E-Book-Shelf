@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
 @attribute [Authorize]
 
 <div class="container mt-5 mb-5">
@@ -93,6 +94,7 @@
 </div>
 
 
+
 @code {
     public int Id { get; set; }
     private Users Users { get; set; }
@@ -101,6 +103,7 @@
     private int HistoryCount { get; set; }
     private int CollectionCount { get; set; }
 
+
     protected override async Task OnInitializedAsync()
     {
         var user = (await Auth.GetAuthenticationStateAsync()).User;
@@ -108,19 +111,20 @@
         Users = Db.Users.FirstOrDefault(c => c.Id == Id)!;
 
         LastLog = await Db.BooksLogs
-       .Where(log => log.UserId == Id && log.Status == "Reading")
+       .Where(log => log.UserId == Users.Id && log.Status == "Reading")
        .Include(log => log.Book)
        .OrderByDescending(log => log.UpdatedAt)
        .FirstOrDefaultAsync();
 
-        FavoriteCount = Db.BooksLogs.Count(log => log.UserId == Id && log.Favorite);
+        FavoriteCount = Db.BooksLogs.Count(log => log.UserId == Users.Id && log.Favorite);
 
 
-        CollectionCount = Db.BooksLogs.Count(log => log.UserId == Id);
+        CollectionCount = Db.BooksLogs.Count(log => log.UserId == Users.Id);
 
 
         HistoryCount = Db.BooksLogs
-            .Where(log => log.UserId == Id && log.UpdatedAt >= DateTime.Now.AddDays(-7) && log.Status == "Reading" || log.Status == "Completed")
+            .Where(log => log.UserId == Users.Id && log.UpdatedAt >= DateTime.Now.AddDays(-7) && log.Status == "Reading" || log.Status == "Completed")
             .Count();
     }
+
 }
