@@ -115,14 +115,17 @@
 
     }
 
-        private void DeletePicture(string old_pic)
+    private void DeletePicture(string old_pic)
     {
+        if (string.IsNullOrEmpty(old_pic) || old_pic == "alt_profile_pic.jpg")
+            return; // don't delete default image
+
         var FolderPath = Path.Combine(env.WebRootPath, "ProfileImages");
         var ImagePath = Path.Combine(FolderPath, old_pic);
 
-            var flag = System.IO.File.Exists(ImagePath);
+        var flag = System.IO.File.Exists(ImagePath);
 
-            if (flag)
+        if (flag)
         {
             System.IO.File.Delete(ImagePath);
         }

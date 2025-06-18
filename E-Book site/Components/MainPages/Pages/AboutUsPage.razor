@@ -15,11 +15,11 @@
        @foreach(var item in Team)
         {
             <div class="col-md-5 text-center ">
-                <img src="/ProfileImages/@item.Users.ProfilePictureUrl" class="rounded-circle shadow mb-3" alt="Umair Khalid" width="180" height="180">
-                <h3>@item.Users.UserName</h3>
-                <p class="text-muted">@item.Users.Designation</p>
+                <img src="/ProfileImages/@item?.Users?.ProfilePictureUrl" class="rounded-circle shadow mb-3" alt="Umair Khalid" width="180" height="180">
+                <h3>@item?.Users.UserName</h3>
+                <p class="text-muted">@item?.Users?.Designation</p>
                 <p>
-                    @item.Users.Bio
+                    @item?.Users.Bio
                 </p>
             </div>
         }
@@ -34,7 +34,7 @@
                     <div class="card-body">
                         <h2 class=" text-primary mb-3">Our Mission</h2>
                         <p class="card-text ">
-                            @aboutUs.Mission
+                            @aboutUs?.Mission
                         </p>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                     <div class="card-body">
                         <h2 class=" text-success mb-3">Our Vision</h2>
                         <p class="card-text ">
-                            @aboutUs.Vision
+                            @aboutUs?.Vision
                         </p>
                     </div>
                 </div>

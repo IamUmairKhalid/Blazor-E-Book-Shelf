@@ -4,6 +4,8 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")]
 
+
+<PageTitle>Users</PageTitle>
 <!-- Table -->
 
 <div class="row  justify-content-center ">
@@ -82,11 +84,19 @@
                         </div>
 
                         <div  class="col-md-6">
-                            <label>Role</label>
-                            <InputSelect @bind-Value="details.Role" class="form-control">
-                                <option value="Admin">Admin</option>
-                                <option value="User">User</option>
-                            </InputSelect>
+                            @if(AdminCount == 1 && details.Role == "Admin")
+                            {
+                                <label>Role</label>
+                                <InputText @bind-Value="details.Role" readonly class="form-control"/>
+                            }
+                            else
+                            {
+                                <label>Role</label>
+                                <InputSelect @bind-Value="details.Role" class="form-control">
+                                    <option value="Admin">Admin</option>
+                                    <option value="User">User</option>
+                                </InputSelect>
+                            }
                         </div>
 
                         <div class="col-md-6">
@@ -143,12 +153,13 @@
     protected IEnumerable<Users> Users { get; set; }
     private int Count => Users?.Count() ?? 0;
     private Users details;
+    private int? AdminCount;
 
     protected override void OnInitialized()
     {
 
         Users = Db.Users.OrderBy(c => c.Role).OrderBy(c=>c.CreatedAt).ToList();
-
+        AdminCount = Db.Users.Count(u => u.Role == "Admin");
     }
 
    
@@ -175,6 +186,7 @@
         }
         await Db.SaveChangesAsync();
         Users = Db.Users.OrderBy(c => c.Role).OrderBy(c => c.CreatedAt).ToList();
+        AdminCount = Db.Users.Count(u => u.Role == "Admin");
         await updatemodal.HideAsync();
         messages.Add(CreateUpdateMessage(ToastType.Success));
     }

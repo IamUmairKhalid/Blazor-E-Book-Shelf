@@ -1,3 +1,157 @@
 ﻿@layout UserLayout
 @page "/User/search"
-<SearchBar/>
+
+@rendermode InteractiveServer
+@using System.Linq
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@attribute [Authorize]
+
+<PageTitle>Search Book</PageTitle>
+
+<!-- Search Start -->
+<div class="container-fluid mt-2 mb-3 shadow-sm" style="padding: 35px; background-color:#FF6F3C;">
+    <div class="container">
+        <EditForm Model="@searchModel" OnValidSubmit="PerformSearch">
+            <div class="row g-3 align-items-end">
+                <!-- Keyword -->
+                <div class="col-12 col-md-4">
+                    <InputText class="form-control border-0 shadow-sm" placeholder="Keyword (title or author)" @bind-Value="searchModel.Keyword" />
+                </div>
+
+                <!-- Category -->
+                <div class="col-12 col-md-4">
+                    <InputSelect class="form-select border-0 shadow-sm" @bind-Value="searchModel.Genre">
+                        <option value="">All Genres</option>
+                        @foreach (var genre in Genres)
+                        {
+                            <option value="@genre">@genre</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <!-- Search Button -->
+                <div class="col-12 col-md-4">
+                    <button type="submit" class="btn btn-dark border-0 w-100 shadow-sm">Search</button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+<!-- Search End -->
+<!-- Results -->
+<div class="container my-4">
+    @if (searchResults != null && searchResults.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var book in searchResults)
+            {
+
+                <div class="col">
+                    <div class="card card-hover h-100 shadow-sm d-flex flex-column"
+                         style="cursor:pointer"
+                         @onclick="() => OpenBook(book.Id)">
+
+                        <!-- Slightly smaller image container -->
+                        <div class="overflow-hidden" style="height:320px;">
+                            <img src="@book.CoverUrl"
+                                 alt="Book cover"
+                                 class="w-100 h-100"
+                                 style="object-fit: cover;">
+                        </div>
+
+                        <!-- Book title and author -->
+                        <div class="card-body text-center mt-auto">
+                            <h5 class="card-title mb-1">@book.Title</h5>
+                            <p class="card-text text-muted mb-0">@book.Author</p>
+                            <p class="card-text text-muted mb-0">@book.Genre</p>
+                            <div class="text-yellow-500" style="color: gold;">
+                                @for (int i = 0; i < (int)book.Rating; i++)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+
+                                @if (book.Rating - (int)book.Rating >= 0.25 && book.Rating - (int)book.Rating < 0.75)
+                                {
+                                    <i class="fas fa-star-half-alt"></i>
+                                }
+
+                                @for (int i = 0; i < (5 - (int)book.Rating - ((book.Rating - (int)book.Rating >= 0.25 && book.Rating - (int)book.Rating < 0.75) ? 1 : 0)); i++)
+                                {
+                                    <i class="far fa-star"></i>
+                                }
+                                (@book.RatingCount)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (searchPerformed)
+    {
+        <p class="text-muted">No books found.</p>
+    }
+</div>
+
+@code {
+    private class SearchModel
+    {
+        public string Keyword { get; set; } = "";
+        public string Genre { get; set; } = "";
+    }
+
+    private SearchModel searchModel = new();
+    private List<Book> searchResults = new();
+    private List<string> Genres = new();
+    private bool searchPerformed = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Populate genre list from DB
+        Genres = await Db.Books
+            .Where(b => !string.IsNullOrEmpty(b.Genre))
+            .Select(b => b.Genre)
+            .Distinct()
+            .OrderBy(g => g)
+            .ToListAsync();
+
+        // Show all books initially
+        searchResults = await Db.Books.OrderBy(b => b.Title).ToListAsync();
+    }
+
+    private async Task PerformSearch()
+    {
+        searchPerformed = true;
+
+        var query = Db.Books.AsQueryable();
+
+        string keyword = searchModel.Keyword?.ToLower()?.Trim() ?? "";
+        string genre = searchModel.Genre?.Trim() ?? "";
+
+        // Apply conditional OR search logic
+        if (!string.IsNullOrWhiteSpace(keyword) || !string.IsNullOrWhiteSpace(genre))
+        {
+            query = query.Where(b =>
+                (!string.IsNullOrWhiteSpace(keyword) &&
+                    (b.Title.ToLower().Contains(keyword) || b.Author.ToLower().Contains(keyword))) ||
+                (!string.IsNullOrWhiteSpace(genre) &&
+                    b.Genre == genre));
+        }
+
+        // Prioritize more relevant matches (exact > partial > others)
+        query = query
+            .OrderByDescending(b => b.Title.ToLower() == keyword)
+            .ThenByDescending(b => b.Author.ToLower() == keyword)
+            .ThenByDescending(b => b.Title.ToLower().Contains(keyword))
+            .ThenBy(b => b.Title);
+
+        searchResults = await query.ToListAsync();
+    }
+
+    private void OpenBook(int id)
+    {
+        NavigationManager.NavigateTo($"/userbookdetail/{id}");
+    }
+
+}

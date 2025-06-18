@@ -5,6 +5,8 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")]
 
+<PageTitle>AboutUSDetails</PageTitle>
+
 <div class="row  justify-content-center ">
 
     <div class="col-md-10 justify-content-center">
@@ -33,19 +35,19 @@
                 <tbody>
                     <tr @onclick="NavigateToAddEdit" style="cursor:pointer;">
                         <td>
-                            <span class="short-text">@(AboutUs.Email.Length > 15 ? AboutUs.Email.Substring(0, 15) + "..." : AboutUs.Email)</span>
+                            <span class="short-text">@(AboutUs?.Email.Length > 15 ? AboutUs?.Email.Substring(0, 15) + "..." : AboutUs?.Email)</span>
                         </td>
                         <td>
-                            <span class="short-text">@(AboutUs.Phone.Length > 13 ? AboutUs.Phone.Substring(0, 13) + "..." : AboutUs.Phone)</span>
+                            <span class="short-text">@(AboutUs?.Phone.Length > 13 ? AboutUs?.Phone.Substring(0, 13) + "..." : AboutUs?.Phone)</span>
                         </td>
                         <td>
-                            <span class="short-text">@(AboutUs.Address.Length > 15 ? AboutUs.Address.Substring(0, 15) + "..." : AboutUs.Address)</span>
+                            <span class="short-text">@(AboutUs?.Address.Length > 15 ? AboutUs?.Address.Substring(0, 15) + "..." : AboutUs?.Address)</span>
                         </td>
                         <td>
-                            <span class="short-text">@(AboutUs.Mission.Length > 15 ? AboutUs.Mission.Substring(0, 15) + "..." : AboutUs.Mission)</span>
+                            <span class="short-text">@(AboutUs?.Mission.Length > 15 ? AboutUs?.Mission.Substring(0, 15) + "..." : AboutUs?.Mission)</span>
                         </td>
                         <td>
-                            <span class="short-text">@(AboutUs.Vision.Length > 15 ? AboutUs.Vision.Substring(0, 15) + "..." : AboutUs.Vision)</span>
+                            <span class="short-text">@(AboutUs?.Vision.Length > 15 ? AboutUs?.Vision.Substring(0, 15) + "..." : AboutUs?.Vision)</span>
                         </td>
                     </tr>
                 </tbody>

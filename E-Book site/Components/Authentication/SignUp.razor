@@ -1,7 +1,8 @@
 ﻿@page "/signup"
 @layout BlankLayout
 @rendermode InteractiveServer
-<PageTitle>User Sign Up</PageTitle>
+
+<PageTitle>Sign Up</PageTitle>
 
 <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
     <div class="card shadow-lg p-4" style="width: 100%; max-width: 450px;">
@@ -49,7 +50,6 @@
 @code {
     private SignUpModel signUpModel = new();
     private Users User { get; set; } = new();
-    private IEnumerable<Users> UserExist;
     public string? ErrorMessage;
 
     private void HandleSignUp()
@@ -65,15 +65,15 @@
         }
         else
         {
-            UserExist = Db.Users.ToList();
-            if(UserExist is null)
-            {
-                User.Role = "Admin";
-            }
+            var userCount = Db.Users.Count();
+
             User.UserName = signUpModel.FullName;
             User.Email = signUpModel.Email;
             User.Password = signUpModel.Password;
             User.Subscription = true;
+
+            // Assign "Admin" role only if this is the first user
+            User.Role = userCount == 0 ? "Admin" : "User";
 
             Db.Users.Add(User);
             Db.SaveChanges();

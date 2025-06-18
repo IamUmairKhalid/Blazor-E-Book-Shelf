@@ -1,5 +1,4 @@
 ﻿@page "/search"
-@inject AppDbContext Db
 @rendermode InteractiveServer
 @using System.Linq
 @using Microsoft.EntityFrameworkCore
@@ -44,14 +43,42 @@
         <div class="row row-cols-1 row-cols-md-3 g-4">
             @foreach (var book in searchResults)
             {
+
                 <div class="col">
-                    <div class="card h-100 shadow-sm">
-                        <img src="@book.CoverUrl" class="card-img-top" alt="@book.Title" style="height: 250px; object-fit: cover;">
-                        <div class="card-body">
-                            <h5 class="card-title">@book.Title</h5>
-                            <p class="card-text">@book.Author</p>
-                            <p class="card-text text-muted small">@book.Genre</p>
-                            <a href="/bookdetail/@book.Id" class="btn btn-sm btn-outline-dark">Read More</a>
+                    <div class="card card-hover h-100 shadow-sm d-flex flex-column"
+                         style="cursor:pointer"
+                         @onclick="() => OpenBook(book.Id)">
+
+                        <!-- Slightly smaller image container -->
+                        <div class="overflow-hidden" style="height:320px;">
+                            <img src="@book.CoverUrl"
+                                 alt="Book cover"
+                                 class="w-100 h-100"
+                                 style="object-fit: cover;">
+                        </div>
+
+                        <!-- Book title and author -->
+                        <div class="card-body text-center mt-auto">
+                            <h5 class="card-title mb-1">@book.Title</h5>
+                            <p class="card-text text-muted mb-0">@book.Author</p>
+                            <p class="card-text text-muted mb-0">@book.Genre</p>
+                            <div class="text-yellow-500" style="color: gold;">
+                                @for (int i = 0; i < (int)book.Rating; i++)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+
+                                @if (book.Rating - (int)book.Rating >= 0.25 && book.Rating - (int)book.Rating < 0.75)
+                                {
+                                    <i class="fas fa-star-half-alt"></i>
+                                }
+
+                                @for (int i = 0; i < (5 - (int)book.Rating - ((book.Rating - (int)book.Rating >= 0.25 && book.Rating - (int)book.Rating < 0.75) ? 1 : 0)); i++)
+                                {
+                                    <i class="far fa-star"></i>
+                                }
+                                (@book.RatingCount)
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -118,4 +145,10 @@
 
         searchResults = await query.ToListAsync();
     }
+
+    private void OpenBook(int id)
+    {
+        NavigationManager.NavigateTo($"/bookdetail/{id}");
+    }
+
 }
