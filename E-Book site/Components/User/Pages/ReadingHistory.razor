@@ -52,9 +52,9 @@
         var userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
         History = await Db.BooksLogs
-       .Where(log => log.UserId == userId && log.UpdatedAt >= DateTime.Now.AddDays(-7) && log.Status == "Reading" || log.Status == "Completed")
-       .Include(log => log.Book)
+       .Where(log => log.UserId == userId && log.UpdatedAt >= DateTime.Now.AddDays(-7) && (log.Status == "Reading" || log.Status == "Completed"))
        .OrderByDescending(log => log.UpdatedAt)
+       .Include(log => log.Book)
        .ToListAsync();
     }
 }

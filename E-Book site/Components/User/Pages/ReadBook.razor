@@ -24,7 +24,7 @@
                 <!-- Sticky Top Toolbar -->
                 <div class="sticky-top bg-white shadow-sm py-2 px-3 z-3 mb-3" style="top: 65px;">
                     <div class="d-flex justify-content-between align-items-center">
-                        <strong>Reading Log</strong>
+                        <strong>Reading Status</strong>
                         <button class="btn btn-sm btn-outline-secondary" @onclick="() => toolbarVisible = !toolbarVisible">
                             <i class="fas @(toolbarVisible ? "fa-chevron-up" : "fa-chevron-down")"></i>
                         </button>
@@ -33,9 +33,10 @@
                     @if (toolbarVisible)
                     {
                         <div class="row mt-2 ">
+
                             <div class="col-md-2">
-                                <label class="form-label">Page</label>
-                                <div class="form-control bg-light">@CurrentPage / @TotalPages</div>
+                                <label class="form-label">Last Saved Page</label>
+                                <div class="form-control bg-light">@Log.LastSeenPage</div>
                             </div>
 
                             <div class="col-md-2">
@@ -100,14 +101,14 @@
 @code {
     [Parameter] public int BookId { get; set; }
     List<ToastMessage> messages = new List<ToastMessage>();
+    private int userId;
     private string pdfBase64String = "";
     private bool loadError = false;
     private string eventLog = $"Loading PDF...";
     private int CurrentPage = 1;
     private int TotalPages = 1;
     private bool toolbarVisible = true;
-
-    public static int InitialPageNumber { get; set; } = 1;
+    private double progress;
     private Users Users { get; set; }
     private Book? book;
     private BooksLogs Log = new();
@@ -115,9 +116,23 @@
     protected override async Task OnInitializedAsync()
     {
         var user = (await Auth.GetAuthenticationStateAsync()).User;
-        int userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        userId = int.Parse(user.FindFirst(ClaimTypes.NameIdentifier)!.Value);
         Users = await Db.Users.FindAsync(userId);
         book = await Db.Books.FindAsync(BookId);
+
+        Log = await Db.BooksLogs
+           .FirstOrDefaultAsync(b => b.BookId == BookId && b.UserId == userId)
+           ?? new BooksLogs
+           {
+               BookId = BookId,
+               UserId = Users.Id,
+               ISBN = book?.ISBN ?? "",
+               Status = "Reading",
+               Favorite = false,
+               LastSeenPage = 0,
+               ProgressPercentage = 0
+           };
+
 
         try
         {
@@ -137,30 +152,13 @@
             loadError = true;
         }
 
-        Log = await Db.BooksLogs
-            .FirstOrDefaultAsync(b => b.BookId == BookId && b.UserId == userId)
-            ?? new BooksLogs
-            {
-                BookId = BookId,
-                UserId = Users.Id,
-                ISBN = book?.ISBN ?? "",
-                Status = "Reading",
-                Favorite = false,
-                LastSeenPage = 1,
-                ProgressPercentage = 0
-            };
-
-        InitialPageNumber = Log.LastSeenPage ?? 1;
     }
 
     private async void OnPageChanged(PdfViewerEventArgs args)
     {
         CurrentPage = args.CurrentPage;
-        TotalPages = args.TotalPages;
-
-        Log.LastSeenPage = args.CurrentPage;
-        Log.ProgressPercentage = Math.Round((double)args.CurrentPage / args.TotalPages * 100, 1);
-
+        TotalPages = args.TotalPages;   
+        progress = Math.Round((double)CurrentPage / args.TotalPages * 100, 1);
     }
 
     private void OnDocumentLoaded(PdfViewerEventArgs args)
@@ -175,8 +173,8 @@
 
         if (log != null)
         {
-            log.LastSeenPage = Log.LastSeenPage;
-            log.ProgressPercentage = Log.ProgressPercentage;
+            log.LastSeenPage = CurrentPage;
+            log.ProgressPercentage = progress;
             log.Status = Log.Status;
             log.Rating = Log.Rating;
             log.Favorite = Log.Favorite;
@@ -186,6 +184,7 @@
             await Db.SaveChangesAsync();
             // Update book's average rating
             await UpdateBookRating(BookId);
+
             messages.Add(CreateUpdateMessage(ToastType.Success));
         }
 

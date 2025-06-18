@@ -137,7 +137,7 @@
         CompletedCount = Db.BooksLogs.Count(log => log.UserId == Users.Id && log.Status=="Completed");
 
         HistoryCount = Db.BooksLogs
-            .Where(log => log.UserId == Users.Id && log.UpdatedAt >= DateTime.Now.AddDays(-7) && log.Status == "Reading" || log.Status == "Completed")
+            .Where(log => log.UserId == Users.Id && log.UpdatedAt >= DateTime.Now.AddDays(-7) && (log.Status == "Reading" || log.Status == "Completed"))
             .Count();
     }
 

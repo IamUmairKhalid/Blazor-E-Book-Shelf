@@ -14,7 +14,7 @@
             <option value="">-- Select User --</option>
             @foreach (var user in AvailableUsers)
             {
-                <option value="@user.Id">Id: @user.Id | Name: @user.UserName</option>
+                <option value="@user.Id">Id: @user.Id | Name: @user.UserName | Email: @user.Email | Designation: @user.Designation</option>
             }
         </InputSelect>
         
@@ -108,10 +108,13 @@
     private List<Users> AvailableUsers = new();
     private int SelectedUserId;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         AboutUsModel = Db.AboutUs.FirstOrDefault() ?? new AboutUs();
-        TeamMembers = Db.AboutTeam.Include(t => t.Users).ToList();
+        TeamMembers = await Db.AboutTeam
+        .Include(t => t.Users)
+        .ToListAsync();
+
         var existingIds = TeamMembers.Select(t => t.UserId).ToList();
         AvailableUsers = Db.Users.Where(u => !existingIds.Contains(u.Id)).ToList();
     }
